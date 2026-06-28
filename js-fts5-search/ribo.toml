@@ -1,0 +1,9 @@
+[cell]
+name = "fts5-search"
+js   = "./cell.js"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "fts5-search"

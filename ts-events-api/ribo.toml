@@ -1,0 +1,10 @@
+[cell]
+name  = "events"
+js    = "./dist/cell.js"
+build = "npx esbuild src/cell.ts --bundle --outfile=dist/cell.js --format=esm"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "events"

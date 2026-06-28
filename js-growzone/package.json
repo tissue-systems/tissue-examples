@@ -1,0 +1,12 @@
+{
+  "name": "js-growzone",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/logic.test.mjs",
+    "build": "npx esbuild src/cell.js --bundle --outfile=dist/cell.js --format=esm --platform=browser"
+  },
+  "devDependencies": {
+    "esbuild": "^0.21.0"
+  }
+}

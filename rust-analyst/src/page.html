@@ -1,0 +1,55 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>analyst</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:monospace;background:#0d0d0d;color:#ccc;margin:0;padding:2rem;min-height:100vh}
+  h1{font-size:1.1rem;font-weight:500;color:#eee;margin:0 0 .3rem}
+  .sub{font-size:.78rem;color:#555;margin-bottom:1.5rem}
+  textarea{width:100%;background:#1a1a1a;border:1px solid #333;color:#eee;padding:.6rem .75rem;border-radius:4px;font-family:inherit;font-size:.82rem;resize:vertical;min-height:120px}
+  textarea:focus{outline:none;border-color:#0066ff}
+  button{margin-top:.5rem;background:#0066ff;color:#fff;border:none;padding:.5rem 1rem;border-radius:4px;font-family:inherit;font-size:.85rem;cursor:pointer}
+  button:hover{background:#0052cc}
+  #results{margin-top:1.25rem}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  td{padding:.4rem .5rem;border-bottom:1px solid #1a1a1a}
+  td:first-child{color:#888;width:200px}
+  td:last-child{color:#33ff77}
+  #err{color:#ff4444;font-size:.8rem;margin-top:.5rem}
+  .note{font-size:.72rem;color:#444;margin-top:2rem;line-height:1.6}
+</style></head><body>
+<h1>analyst</h1>
+<p class="sub">Text analysis — four concurrent Rust async passes via <code>future::join4</code> + <code>yield_now()</code>.</p>
+<textarea id="txt" placeholder="Enter some text to analyse…">The quick brown fox jumps over the lazy dog. A fox is quick and brown.</textarea>
+<button onclick="analyse()">Analyse</button>
+<div id="err"></div>
+<div id="results"></div>
+<p class="note">
+  <code>POST /analyse</code> with plain text body.<br>
+  The cooperative multitasking model (yield_now) is exposed via the invoke route:<br>
+  <code>POST /invoke/&lt;addr&gt;/analyse  "your text here"</code>
+</p>
+<script>
+async function analyse() {
+  const text = document.getElementById('txt').value;
+  document.getElementById('err').textContent = '';
+  document.getElementById('results').innerHTML = '<table><tr><td colspan=2>…</td></tr></table>';
+  try {
+    const r = await fetch('/analyse', {method:'POST',body:text,headers:{'content-type':'text/plain'}});
+    const d = await r.json();
+    if (d.error) { document.getElementById('err').textContent=String(d.error); document.getElementById('results').innerHTML=''; return; }
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+    const rows = [
+      ['words', d.word_count],
+      ['lines', d.line_count],
+      ['characters', d.char_count],
+      ['avg word length', d.avg_word_length],
+      ['top characters', d.top_chars],
+      ['longest word', `${d.longest_word} (${d.longest_word_length})`],
+      ['palindromes', `${d.palindrome_count}${d.palindrome_examples ? ': '+d.palindrome_examples : ''}`],
+      ['concurrency model', d.concurrency_model],
+    ];
+    document.getElementById('results').innerHTML = '<table>'+rows.map(([k,v])=>`<tr><td>${esc(k)}</td><td>${esc(String(v))}</td></tr>`).join('')+'</table>';
+  } catch(e) { document.getElementById('err').textContent=e.message; document.getElementById('results').innerHTML=''; }
+}
+</script></body></html>

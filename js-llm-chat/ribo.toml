@@ -1,0 +1,9 @@
+[cell]
+name = "llm-chat"
+js   = "./cell.js"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "llm-chat"

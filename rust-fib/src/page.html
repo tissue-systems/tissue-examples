@@ -1,0 +1,40 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>fib</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:monospace;background:#0d0d0d;color:#ccc;margin:0;padding:2rem;min-height:100vh}
+  h1{font-size:1.1rem;font-weight:500;color:#eee;margin:0 0 .3rem}
+  .sub{font-size:.78rem;color:#555;margin-bottom:2rem}
+  .row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+  input[type=number]{background:#1a1a1a;border:1px solid #333;color:#eee;padding:.5rem .75rem;border-radius:4px;font-family:inherit;font-size:.9rem;width:100px}
+  input:focus{outline:none;border-color:#0066ff}
+  button{background:#0066ff;color:#fff;border:none;padding:.5rem 1rem;border-radius:4px;font-family:inherit;font-size:.85rem;cursor:pointer}
+  button:hover{background:#0052cc}
+  #out{margin-top:1.5rem;font-size:1rem;color:#33ff77;min-height:1.5rem}
+  #err{color:#ff4444;font-size:.8rem;margin-top:.5rem}
+  .note{font-size:.72rem;color:#444;margin-top:2.5rem}
+</style></head><body>
+<h1>fib</h1>
+<p class="sub">Fibonacci — Rust/WASM fetch handler.</p>
+<div class="row">
+  <input id="n" type="number" min="0" max="93" value="10">
+  <button onclick="calc()">fibonacci(n)</button>
+</div>
+<div id="out"></div>
+<div id="err"></div>
+<p class="note">POST /fib  { "n": 10 } → { "n": 10, "result": "55" }<br>Max n = 93</p>
+<script>
+async function calc() {
+  const n = parseInt(document.getElementById('n').value, 10);
+  document.getElementById('err').textContent = '';
+  document.getElementById('out').textContent = '…';
+  try {
+    const r = await fetch('/fib', {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({n})});
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('err').textContent = d.error; document.getElementById('out').textContent=''; return; }
+    document.getElementById('out').textContent = `fibonacci(${d.n}) = ${d.result}`;
+  } catch(e) { document.getElementById('err').textContent = e.message; document.getElementById('out').textContent=''; }
+}
+document.getElementById('n').addEventListener('keydown', e => e.key === 'Enter' && calc());
+</script></body></html>

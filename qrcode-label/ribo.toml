@@ -1,0 +1,8 @@
+[cell]
+name = "qrcode-label"
+js   = "./cell.js"
+
+[[bindings]]
+type    = "files"
+binding = "FILES"
+dir     = "./assets"

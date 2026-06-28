@@ -1,0 +1,4 @@
+[cell]
+name = "hello"
+js   = "./cell.js"
+

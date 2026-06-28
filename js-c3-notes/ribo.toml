@@ -1,0 +1,8 @@
+[cell]
+name = "c3-notes"
+js   = "./cell.js"
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "notes"

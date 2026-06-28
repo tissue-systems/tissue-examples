@@ -1,0 +1,9 @@
+[cell]
+name = "agent"
+js   = "./cell.js"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "agent"

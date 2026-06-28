@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rust Spell Checker</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --border: #2a2d3a;
+    --accent: #7c6af7;
+    --accent-dim: #5a4fd4;
+    --text: #e2e4ed;
+    --muted: #6b7280;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 16px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+  .badge {
+    display: inline-block;
+    background: #2d1f6e;
+    color: #a78bfa;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 560px;
+  }
+  .input-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  input[type="text"] {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1.05rem;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus {
+    border-color: var(--accent);
+  }
+  button {
+    background: var(--accent);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 10px 20px;
+    transition: background 0.15s;
+  }
+  button:hover { background: var(--accent-dim); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  #status {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 16px;
+    min-height: 1.2em;
+  }
+  #status.exact { color: var(--green); }
+  #status.error { color: var(--red); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  thead th {
+    color: var(--muted);
+    font-weight: 500;
+    text-align: left;
+    padding: 4px 8px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  tbody tr:hover { background: rgba(255,255,255,0.03); }
+  td {
+    padding: 9px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .word-cell { font-weight: 500; }
+  .dist-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .dist-0 { color: var(--green); }
+  .dist-1 { color: var(--yellow); }
+  .dist-2 { color: #fb923c; }
+  .dist-hi { color: var(--red); }
+
+  .bar-cell { width: 120px; }
+  .bar-bg {
+    background: var(--border);
+    border-radius: 3px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 0.2s;
+  }
+
+  .empty { color: var(--muted); text-align: center; padding: 32px 0; font-size: 0.9rem; }
+
+  footer {
+    margin-top: 32px;
+    color: var(--muted);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">Rust · WASM</div>
+  <h1>Spell Checker</h1>
+  <p>Levenshtein distance, compiled from Rust to WebAssembly</p>
+</header>
+
+<div class="card">
+  <div class="input-row">
+    <input type="text" id="word" placeholder="Type a word…" autocomplete="off" spellcheck="false">
+    <button id="btn" onclick="check()">Check</button>
+  </div>
+  <div id="status"></div>
+  <div id="results"><p class="empty">Enter a word above to check spelling</p></div>
+</div>
+
+<footer>
+  Runs entirely in Rust WASM on a <a href="https://tissue.systems">Tissue</a> cell &mdash;
+  ~200 word dictionary, O(n) space Levenshtein &mdash;
+  <span id="timing"></span>
+</footer>
+
+<script>
+let debounce;
+const wordInput = document.getElementById('word');
+const btn = document.getElementById('btn');
+const statusEl = document.getElementById('status');
+const resultsEl = document.getElementById('results');
+const timingEl = document.getElementById('timing');
+
+wordInput.addEventListener('input', () => {
+  clearTimeout(debounce);
+  if (!wordInput.value.trim()) {
+    statusEl.textContent = '';
+    statusEl.className = '';
+    resultsEl.innerHTML = '<p class="empty">Enter a word above to check spelling</p>';
+    return;
+  }
+  debounce = setTimeout(check, 280);
+});
+
+wordInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') { clearTimeout(debounce); check(); }
+});
+
+async function check() {
+  const word = wordInput.value.trim();
+  if (!word) return;
+
+  btn.disabled = true;
+  statusEl.className = '';
+  statusEl.textContent = 'Checking…';
+  resultsEl.innerHTML = '';
+
+  const t0 = performance.now();
+  try {
+    const res = await fetch('/check', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ word }),
+    });
+    const ms = (performance.now() - t0).toFixed(1);
+    timingEl.textContent = `last check: ${ms} ms`;
+
+    if (!res.ok) {
+      const err = await res.text();
+      statusEl.className = 'error';
+      statusEl.textContent = `Error ${res.status}: ${err}`;
+      return;
+    }
+
+    const data = await res.json();
+    renderResults(data);
+  } catch (e) {
+    statusEl.className = 'error';
+    statusEl.textContent = `Network error: ${e.message}`;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderResults(data) {
+  const { query, exact, suggestions, checked } = data;
+  if (exact) {
+    statusEl.className = 'exact';
+    statusEl.textContent = `"${query}" is spelled correctly ✓  (checked ${checked} words)`;
+  } else {
+    statusEl.className = '';
+    statusEl.textContent = `"${query}" not found — top suggestions (checked ${checked} words)`;
+  }
+
+  if (!suggestions || suggestions.length === 0) {
+    resultsEl.innerHTML = '<p class="empty">No suggestions</p>';
+    return;
+  }
+
+  const maxDist = suggestions[suggestions.length - 1]?.distance || 1;
+
+  const rows = suggestions.map(({ word, distance }) => {
+    const pct = maxDist > 0 ? Math.round((1 - distance / (maxDist + 1)) * 100) : 100;
+    const cls = distance === 0 ? 'dist-0' : distance === 1 ? 'dist-1' : distance === 2 ? 'dist-2' : 'dist-hi';
+    return `<tr>
+      <td class="word-cell">${esc(word)}</td>
+      <td class="dist-cell ${cls}">${distance}</td>
+      <td class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  }).join('');
+
+  resultsEl.innerHTML = `<table>
+    <thead><tr><th>Word</th><th style="text-align:right">Distance</th><th></th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

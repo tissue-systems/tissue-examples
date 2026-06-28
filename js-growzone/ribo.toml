@@ -1,0 +1,4 @@
+[cell]
+name  = "growzone"
+js    = "./dist/cell.js"
+build = "npx esbuild src/cell.js --bundle --outfile=dist/cell.js --format=esm --platform=browser"

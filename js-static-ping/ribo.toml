@@ -1,0 +1,4 @@
+[cell]
+name = "static-ping"
+js   = "./cell.js"
+

@@ -1,0 +1,25 @@
+[cell]
+name = "flower-farm"
+js   = "./cell.js"
+
+# C3 database — stores live flower stock and visitor waitlist.
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "flower-farm"
+
+# Static assets: CSS, images, and inner pages (flowers, about, 404).
+[[bindings]]
+type    = "files"
+binding = "FILES"
+dir     = "./public"
+
+# Optional: set STOCK_SECRET to require a bearer token on POST /stock
+# and GET /admin/waitlist. Leave unset to run open (fine for a demo).
+#
+# [[bindings]]
+# type    = "text"
+# binding = "STOCK_SECRET"
+# value   = "your-secret-here"
+
+# Live at https://approx-3fad.dev.tissue.systems

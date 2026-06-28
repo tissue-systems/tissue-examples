@@ -1,0 +1,11 @@
+[cell]
+name         = "phonebook"
+wasm         = "./pkg/wasm_phonebook_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/wasm_phonebook.js"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "phonebook"

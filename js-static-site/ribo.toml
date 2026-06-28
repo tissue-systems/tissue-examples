@@ -1,0 +1,3 @@
+[cell]
+name   = "static-site"
+static = "./public"

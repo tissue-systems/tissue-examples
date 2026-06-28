@@ -1,0 +1,5 @@
+[cell]
+name         = "spellcheck"
+wasm         = "./pkg/wasm_spellcheck_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg --release"
+bindgen_glue = "./pkg/wasm_spellcheck.js"

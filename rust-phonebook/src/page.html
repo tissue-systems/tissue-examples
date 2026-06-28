@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>phonebook</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:monospace;background:#0d0d0d;color:#ccc;margin:0;padding:2rem;min-height:100vh}
+  h1{font-size:1.1rem;font-weight:500;color:#eee;margin:0 0 .3rem}
+  .sub{font-size:.78rem;color:#555;margin-bottom:1.5rem}
+  .add-form{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.5rem}
+  input{background:#1a1a1a;border:1px solid #333;color:#eee;padding:.45rem .7rem;border-radius:4px;font-family:inherit;font-size:.82rem;flex:1;min-width:120px}
+  input:focus{outline:none;border-color:#0066ff}
+  button{background:#0066ff;color:#fff;border:none;padding:.45rem .9rem;border-radius:4px;font-family:inherit;font-size:.82rem;cursor:pointer;white-space:nowrap}
+  button:hover{background:#0052cc}
+  #msg{font-size:.75rem;min-height:1.1em;margin-bottom:.75rem}
+  .ok{color:#33ff77}.err{color:#ff4444}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th{text-align:left;color:#555;font-size:.68rem;text-transform:uppercase;letter-spacing:.05em;padding:.35rem .5rem;border-bottom:1px solid #222}
+  td{padding:.45rem .5rem;border-bottom:1px solid #111}
+  .name{color:#eee}.phone{color:#33ff77}.del{color:#333;cursor:pointer;padding:0 .25rem}
+  .del:hover{color:#ff4444}
+  .empty{color:#444;font-size:.8rem;padding:.75rem .5rem}
+</style></head><body>
+<h1>phonebook</h1>
+<p class="sub">Contacts CRUD API — Rust/WASM + C3 SQLite.</p>
+<div class="add-form">
+  <input id="inp-name" placeholder="Name" type="text" autocomplete="off">
+  <input id="inp-phone" placeholder="+1 555 0100" type="text" autocomplete="off">
+  <button type="button" onclick="add()">Add contact</button>
+</div>
+<div id="msg"></div>
+<table>
+  <thead><tr><th>name</th><th>phone</th><th></th></tr></thead>
+  <tbody id="tbody"><tr><td class="empty" colspan="3">loading…</td></tr></tbody>
+</table>
+<script>
+async function load() {
+  const r = await fetch('/contacts');
+  const {contacts=[]} = await r.json();
+  const tb = document.getElementById('tbody');
+  if (!contacts.length) { tb.innerHTML='<tr><td class="empty" colspan="3">no contacts yet</td></tr>'; return; }
+  tb.innerHTML = contacts.map(c=>`<tr>
+    <td class="name">${esc(c.name)}</td>
+    <td class="phone">${esc(c.phone)}</td>
+    <td><span class="del" onclick="del(${c.id})">✕</span></td>
+  </tr>`).join('');
+}
+async function add() {
+  const name=document.getElementById('inp-name').value.trim(), phone=document.getElementById('inp-phone').value.trim();
+  const m=document.getElementById('msg');
+  if (!name||!phone){m.innerHTML='<span class="err">name and phone required</span>';return;}
+  const r=await fetch('/contacts',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({name,phone})});
+  const d=await r.json();
+  if(!r.ok){m.innerHTML=`<span class="err">${esc(d.error||'error')}</span>`;return;}
+  m.innerHTML=`<span class="ok">added ${esc(d.contact.name)}</span>`;
+  document.getElementById('inp-name').value='';document.getElementById('inp-phone').value='';
+  load();
+}
+async function del(id) {
+  await fetch('/contacts/'+id,{method:'DELETE'});
+  load();
+}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+load();
+</script></body></html>

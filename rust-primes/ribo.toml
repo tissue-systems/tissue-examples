@@ -1,0 +1,6 @@
+[cell]
+name         = "primes"
+wasm         = "./pkg/wasm_primes_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/wasm_primes.js"
+

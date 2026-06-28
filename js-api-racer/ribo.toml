@@ -1,0 +1,3 @@
+[cell]
+name = "api-racer"
+js   = "./cell.js"

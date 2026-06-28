@@ -1,0 +1,5 @@
+[cell]
+name         = "spfchecker"
+wasm         = "./pkg/rust_spfchecker_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/rust_spfchecker.js"

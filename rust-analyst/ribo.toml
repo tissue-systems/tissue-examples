@@ -1,0 +1,6 @@
+[cell]
+name         = "analyst"
+wasm         = "./pkg/wasm_analyst_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/wasm_analyst.js"
+

@@ -1,0 +1,9 @@
+[cell]
+name = "vec-search"
+js   = "./cell.js"
+
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "vec-search"

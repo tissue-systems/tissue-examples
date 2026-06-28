@@ -1,0 +1,10 @@
+[cell]
+name         = "g7-store"
+wasm         = "./pkg/rust_g7_store_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/rust_g7_store.js"
+
+[[bindings]]
+type    = "g7"
+binding = "STORE"
+bucket  = "g7-store"

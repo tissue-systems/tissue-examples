@@ -1,0 +1,5 @@
+[cell]
+name         = "fib"
+wasm         = "./pkg/wasm_fib_bg.wasm"
+build        = "wasm-pack build --target web --out-dir pkg"
+bindgen_glue = "./pkg/wasm_fib.js"

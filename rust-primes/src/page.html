@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>primes</title>
+<style>
+  *{box-sizing:border-box}
+  body{font-family:monospace;background:#0d0d0d;color:#ccc;margin:0;padding:2rem;min-height:100vh}
+  h1{font-size:1.1rem;font-weight:500;color:#eee;margin:0 0 .3rem}
+  .sub{font-size:.78rem;color:#555;margin-bottom:2rem}
+  label{font-size:.8rem;color:#888;display:block;margin-bottom:.25rem}
+  .row{display:flex;gap:.5rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:1.25rem}
+  .field{display:flex;flex-direction:column;gap:.25rem}
+  input[type=number]{background:#1a1a1a;border:1px solid #333;color:#eee;padding:.5rem .75rem;border-radius:4px;font-family:inherit;font-size:.85rem;width:110px}
+  input:focus{outline:none;border-color:#0066ff}
+  button{background:#0066ff;color:#fff;border:none;padding:.5rem 1rem;border-radius:4px;font-family:inherit;font-size:.85rem;cursor:pointer;white-space:nowrap}
+  button:hover{background:#0052cc}
+  #out{font-size:.9rem;color:#33ff77;min-height:1.5rem;margin-bottom:.5rem}
+  #out2{font-size:.82rem;color:#33ff77;min-height:1.5rem}
+  #err{color:#ff4444;font-size:.8rem}
+  .note{font-size:.72rem;color:#444;margin-top:2.5rem;line-height:1.6}
+</style></head><body>
+<h1>primes</h1>
+<p class="sub">Count primes in a range — Rust/WASM, async futures.</p>
+
+<label>Count primes in [start, end)</label>
+<div class="row">
+  <div class="field"><label>start</label><input id="s1" type="number" value="2" min="2" max="9999999"></div>
+  <div class="field"><label>end</label><input id="e1" type="number" value="100000" min="3" max="10000000"></div>
+  <button onclick="count()">Count</button>
+</div>
+<div id="out"></div>
+
+<label style="margin-top:1.5rem;display:block">Count two ranges (joined futures)</label>
+<div class="row">
+  <div class="field"><label>start₁</label><input id="s2" type="number" value="2" min="2" max="9999999"></div>
+  <div class="field"><label>end₁</label><input id="e2" type="number" value="50000" min="3" max="10000000"></div>
+  <div class="field"><label>start₂</label><input id="s3" type="number" value="50000" min="2" max="9999999"></div>
+  <div class="field"><label>end₂</label><input id="e3" type="number" value="100000" min="3" max="10000000"></div>
+  <button onclick="joined()">Count joined</button>
+</div>
+<div id="out2"></div>
+<div id="err"></div>
+
+<p class="note">
+  The async <code>count_primes_joined</code> export wraps CPU-bound work in futures::join —<br>
+  both futures run sequentially because neither yields mid-computation.<br>
+  Invoke directly: <code>POST /invoke/&lt;addr&gt;/count_primes_joined {"args":[2,50000,50000,100000]}</code>
+</p>
+<script>
+async function post(path, body) {
+  const r = await fetch(path, {method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
+async function count() {
+  const s=+document.getElementById('s1').value, e=+document.getElementById('e1').value;
+  document.getElementById('out').textContent='…';
+  const d = await post('/count', {start:s,end:e});
+  document.getElementById('out').textContent = d.error ? `error: ${d.error}` : `${d.count} primes in [${d.start}, ${d.end})  —  ${d.duration_ms}ms`;
+}
+async function joined() {
+  const s1=+document.getElementById('s2').value, e1=+document.getElementById('e2').value;
+  const s2=+document.getElementById('s3').value, e2=+document.getElementById('e3').value;
+  document.getElementById('out2').textContent='…';
+  const d = await post('/joined', {start1:s1,end1:e1,start2:s2,end2:e2});
+  document.getElementById('out2').textContent = d.error ? `error: ${d.error}` : `range1: ${d.count1} primes, range2: ${d.count2} primes  —  ${d.duration_ms}ms`;
+}
+</script></body></html>

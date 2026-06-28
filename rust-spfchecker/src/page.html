@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPF Record Checker</title>
+<style>
+  :root {
+    --bg: #0f1117; --surface: #1a1d27; --surface2: #1f2333;
+    --border: #2a2d3a; --accent: #7c6af7; --accent-dim: #5a4fd4;
+    --text: #e2e4ed; --muted: #6b7280;
+    --green: #34d399; --yellow: #fbbf24; --red: #f87171; --orange: #fb923c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 40px 16px;
+  }
+  header { text-align: center; margin-bottom: 32px; }
+  .badge {
+    display: inline-block; background: #2d1f6e; color: #a78bfa;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 4px; margin-bottom: 12px;
+  }
+  h1 { font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  header p { color: var(--muted); font-size: 0.9rem; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px; width: 100%; max-width: 680px;
+    margin-bottom: 16px;
+  }
+  .input-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  input[type="text"] {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; color: var(--text); font-size: 1rem;
+    padding: 10px 14px; outline: none; font-family: 'JetBrains Mono', monospace;
+    transition: border-color 0.15s;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+  button {
+    background: var(--accent); border: none; border-radius: 8px; color: #fff;
+    cursor: pointer; font-size: 0.9rem; font-weight: 600;
+    padding: 10px 22px; transition: background 0.15s; white-space: nowrap;
+  }
+  button:hover { background: var(--accent-dim); }
+  button:disabled { opacity: 0.5; cursor: default; }
+
+  #status { font-size: 0.82rem; color: var(--muted); min-height: 1.2em; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 20px;
+    padding: 4px 12px; font-size: 0.78rem; cursor: pointer; color: var(--muted);
+    font-family: monospace; transition: all 0.15s;
+  }
+  .chip:hover { border-color: var(--accent); color: var(--text); }
+
+  #output { display: none; }
+
+  .summary-bar {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;
+  }
+  .result-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .dot-ok { background: var(--green); }
+  .dot-warn { background: var(--yellow); }
+  .dot-err { background: var(--red); }
+  .summary-text { flex: 1; font-size: 0.92rem; }
+  .lookup-badge {
+    font-size: 0.78rem; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+  }
+  .lookup-ok { background: rgba(52,211,153,0.15); color: var(--green); }
+  .lookup-warn { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .lookup-err { background: rgba(248,113,113,0.15); color: var(--red); }
+
+  .section { margin-bottom: 20px; }
+  .section-title {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+
+  .violations { display: flex; flex-direction: column; gap: 8px; }
+  .violation {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface2); border-radius: 8px; padding: 12px 14px;
+    border-left: 3px solid transparent;
+  }
+  .violation.error { border-left-color: var(--red); }
+  .violation.warning { border-left-color: var(--yellow); }
+  .violation.info { border-left-color: var(--accent); }
+  .v-icon { font-size: 0.85rem; flex-shrink: 0; padding-top: 1px; }
+  .v-body {}
+  .v-code {
+    font-size: 0.7rem; font-family: monospace; color: var(--muted);
+    background: var(--bg); padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;
+    display: inline-block;
+  }
+  .v-msg { font-size: 0.85rem; line-height: 1.5; }
+
+  .record-block {
+    background: var(--bg); border-radius: 8px; padding: 12px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
+    word-break: break-all; line-height: 1.6; border: 1px solid var(--border);
+  }
+  .mech { display: inline; }
+  .mech-include { color: #a78bfa; }
+  .mech-ip { color: var(--green); }
+  .mech-all-pass { color: var(--red); font-weight: bold; }
+  .mech-all-fail { color: var(--green); }
+  .mech-all-soft { color: var(--yellow); }
+  .mech-a, .mech-mx { color: #60a5fa; }
+  .mech-other { color: var(--text); }
+
+  .domain-section { margin-bottom: 14px; }
+  .domain-label {
+    font-size: 0.78rem; color: var(--muted); font-family: monospace;
+    margin-bottom: 6px;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th {
+    text-align: left; color: var(--muted); font-weight: 500;
+    font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 4px 8px 8px; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 8px 8px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom: none; }
+  .lookup-y { color: var(--yellow); }
+  .qual-pass { color: var(--green); }
+  .qual-fail { color: var(--red); }
+  .qual-soft { color: var(--yellow); }
+  .qual-neutral { color: var(--muted); }
+
+  .raw-json {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px; font-family: monospace; font-size: 0.75rem;
+    white-space: pre-wrap; word-break: break-all; max-height: 300px;
+    overflow-y: auto; color: #9ca3af;
+  }
+  details summary { cursor: pointer; font-size: 0.82rem; color: var(--muted); margin-bottom: 8px; }
+  details summary:hover { color: var(--text); }
+</style>
+</head>
+<body>
+<header>
+  <div class="badge">Rust · WASM · RFC 7208</div>
+  <h1>SPF Record Checker</h1>
+  <p>Validates SPF DNS records for RFC compliance — lookup limits, syntax, includes</p>
+</header>
+
+<div class="card">
+  <div class="input-row">
+    <input type="text" id="domain" placeholder="example.com" autocomplete="off" spellcheck="false">
+    <button id="btn" onclick="check()">Check SPF</button>
+  </div>
+  <div id="status"></div>
+  <div class="chips">
+    <span class="chip" onclick="setDomain('google.com')">google.com</span>
+    <span class="chip" onclick="setDomain('microsoft.com')">microsoft.com</span>
+    <span class="chip" onclick="setDomain('github.com')">github.com</span>
+    <span class="chip" onclick="setDomain('cloudflare.com')">cloudflare.com</span>
+    <span class="chip" onclick="setDomain('shopify.com')">shopify.com</span>
+  </div>
+</div>
+
+<div class="card" id="output">
+  <div id="summary-bar"></div>
+
+  <div class="section" id="violations-section" style="display:none">
+    <div class="section-title">Violations &amp; Warnings</div>
+    <div class="violations" id="violations-list"></div>
+  </div>
+
+  <div class="section" id="record-section" style="display:none">
+    <div class="section-title">SPF Record</div>
+    <div id="domain-records"></div>
+  </div>
+
+  <div class="section" id="mech-section" style="display:none">
+    <div class="section-title">Mechanism Detail</div>
+    <div id="mechanism-table"></div>
+  </div>
+
+  <details id="raw-section" style="display:none">
+    <summary>Raw JSON response</summary>
+    <div class="raw-json" id="raw-json"></div>
+  </details>
+</div>
+
+<script>
+const DOH = 'https://1.1.1.1/dns-query';
+const MAX_DEPTH = 8;
+const LOOKUP_MECHANISMS = new Set(['include', 'a', 'mx', 'ptr', 'exists', 'redirect']);
+
+function setDomain(d) {
+  document.getElementById('domain').value = d;
+  check();
+}
+
+document.getElementById('domain').addEventListener('keydown', e => {
+  if (e.key === 'Enter') check();
+});
+
+async function dohTxt(name) {
+  const url = `${DOH}?name=${encodeURIComponent(name)}&type=TXT`;
+  const res = await fetch(url, { headers: { accept: 'application/dns-json' } });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.Answer ?? [])
+    .filter(a => a.type === 16)
+    .map(a => a.data.replace(/"\s*"/g, '').replace(/^"|"$/g, ''));
+}
+
+async function collectDns(rootDomain) {
+  const collected = {};
+  const queue = [rootDomain.toLowerCase()];
+  const visited = new Set();
+
+  while (queue.length && visited.size < MAX_DEPTH) {
+    const domain = queue.shift();
+    if (visited.has(domain)) continue;
+    visited.add(domain);
+
+    const records = await dohTxt(domain);
+    collected[domain] = records;
+
+    // Find includes and redirects to recurse
+    for (const rec of records) {
+      if (!rec.toLowerCase().startsWith('v=spf1')) continue;
+      const tokens = rec.split(/\s+/);
+      for (const tok of tokens) {
+        const low = tok.toLowerCase();
+        if (low.startsWith('include:')) {
+          const inc = tok.slice('include:'.length);
+          if (inc && !visited.has(inc)) queue.push(inc);
+        }
+        if (low.startsWith('redirect=')) {
+          const redir = tok.slice('redirect='.length);
+          if (redir && !visited.has(redir)) queue.push(redir);
+        }
+      }
+    }
+  }
+
+  return Object.entries(collected).map(([name, records]) => ({ name, records }));
+}
+
+async function check() {
+  const domain = document.getElementById('domain').value.trim().toLowerCase().replace(/^https?:\/\//, '');
+  if (!domain) return;
+
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  setStatus('Fetching DNS records from 1.1.1.1…');
+  document.getElementById('output').style.display = 'none';
+
+  try {
+    const dnsRecords = await collectDns(domain);
+    const domainsFound = dnsRecords.length;
+    setStatus(`Collected TXT records for ${domainsFound} domain(s), analysing…`);
+
+    const res = await fetch('/analyze', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ domain, dns_records: dnsRecords }),
+    });
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    setStatus('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function setStatus(msg) {
+  document.getElementById('status').textContent = msg;
+}
+
+function render(d) {
+  setStatus('');
+
+  // Summary bar
+  const errors = d.violations.filter(v => v.severity === 'error').length;
+  const warns  = d.violations.filter(v => v.severity === 'warning').length;
+  const dotClass = errors > 0 ? 'dot-err' : warns > 0 ? 'dot-warn' : 'dot-ok';
+  const lu = d.total_dns_lookups;
+  const luClass = lu > 10 ? 'lookup-err' : lu > 7 ? 'lookup-warn' : 'lookup-ok';
+
+  document.getElementById('summary-bar').innerHTML = `
+    <div class="result-dot ${dotClass}"></div>
+    <div class="summary-text">${esc(d.summary)}</div>
+    <span class="lookup-badge ${luClass}">${lu}/10 lookups</span>
+  `;
+
+  // Violations
+  const vSec = document.getElementById('violations-section');
+  if (d.violations.length > 0) {
+    vSec.style.display = '';
+    document.getElementById('violations-list').innerHTML = d.violations.map(v => {
+      const icon = v.severity === 'error' ? '✗' : v.severity === 'warning' ? '⚠' : 'ℹ';
+      return `<div class="violation ${v.severity}">
+        <span class="v-icon">${icon}</span>
+        <div class="v-body">
+          <span class="v-code">${esc(v.code)}</span>
+          <div class="v-msg">${esc(v.message)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } else {
+    vSec.style.display = 'none';
+  }
+
+  // SPF record display
+  const recSec = document.getElementById('record-section');
+  if (d.spf_record) {
+    recSec.style.display = '';
+    document.getElementById('domain-records').innerHTML =
+      `<div class="domain-label">${esc(d.domain)}</div>
+       <div class="record-block">${coloriseSPF(d.spf_record)}</div>`;
+  } else {
+    recSec.style.display = 'none';
+  }
+
+  // Mechanism table
+  const mechSec = document.getElementById('mech-section');
+  const allMechs = d.domains_checked.flatMap(dc =>
+    (dc.mechanisms ?? []).map(m => ({ ...m, from: dc.domain }))
+  );
+  if (allMechs.length > 0) {
+    mechSec.style.display = '';
+    const rows = allMechs.map(m => {
+      const qClass = { pass: 'qual-pass', fail: 'qual-fail', softfail: 'qual-soft', neutral: 'qual-neutral' }[m.qualifier] ?? '';
+      return `<tr>
+        <td><code>${esc(m.raw)}</code></td>
+        <td>${esc(m.kind)}</td>
+        <td class="${qClass}">${esc(m.qualifier)}</td>
+        <td class="${m.counts_as_lookup ? 'lookup-y' : ''}">${m.counts_as_lookup ? '✓' : '—'}</td>
+        <td style="color:var(--muted);font-size:0.75rem">${esc(m.from)}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('mechanism-table').innerHTML = `
+      <table>
+        <thead><tr><th>Mechanism</th><th>Kind</th><th>Qualifier</th><th>DNS lookup</th><th>From</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } else {
+    mechSec.style.display = 'none';
+  }
+
+  // Raw JSON
+  const rawSec = document.getElementById('raw-section');
+  rawSec.style.display = '';
+  document.getElementById('raw-json').textContent = JSON.stringify(d, null, 2);
+
+  document.getElementById('output').style.display = 'block';
+}
+
+function coloriseSPF(spf) {
+  return spf.split(/\s+/).map(tok => {
+    const low = tok.toLowerCase();
+    if (low === 'v=spf1') return `<span style="color:var(--muted)">${esc(tok)}</span>`;
+    if (low.startsWith('include:')) return `<span class="mech-include">${esc(tok)}</span>`;
+    if (low.startsWith('ip4:') || low.startsWith('ip6:')) return `<span class="mech-ip">${esc(tok)}</span>`;
+    if (low === '+all') return `<span class="mech-all-pass">${esc(tok)}</span>`;
+    if (low === '-all') return `<span class="mech-all-fail">${esc(tok)}</span>`;
+    if (low === '~all') return `<span class="mech-all-soft">${esc(tok)}</span>`;
+    if (low === '?all' || low === 'all') return `<span class="mech-other">${esc(tok)}</span>`;
+    if (low.startsWith('a') || low.startsWith('mx')) return `<span class="mech-a">${esc(tok)}</span>`;
+    return `<span class="mech-other">${esc(tok)}</span>`;
+  }).join(' ');
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>
