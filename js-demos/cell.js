@@ -226,7 +226,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://hello.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-hello" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-hello" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -243,7 +243,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://static-ping.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-static-ping" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-static-ping" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -263,7 +263,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://c3-notes.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-c3-notes" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-c3-notes" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -283,7 +283,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://notes.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-notes" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-notes" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -303,7 +303,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://url-shortener.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-url-shortener" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-url-shortener" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -320,7 +320,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://api-racer.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-api-racer" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-api-racer" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -337,7 +337,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://growzone.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-growzone" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-growzone" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -357,7 +357,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://llm-chat.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-llm-chat" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-llm-chat" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -377,7 +377,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://agent.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-ai-agent" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-ai-agent" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -400,7 +400,7 @@ const HTML = `<!doctype html>
           <div class="card-links">
             <a class="btn-visit" href="https://flower-farm.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
             <a class="btn-visit" href="https://flower-farm.bestow-75.tissue.dev/admin" target="_blank" rel="noopener">↗ Visit site admin panel</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/js-flower-farm" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/js-flower-farm" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -424,7 +424,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://fib.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-fib" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-fib" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -441,7 +441,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://primes.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-primes" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-primes" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -458,7 +458,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://analyst.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-analyst" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-analyst" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -478,7 +478,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://phonebook.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-phonebook" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-phonebook" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -496,7 +496,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://spellcheck.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-spellcheck" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-spellcheck" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -514,7 +514,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://spfchecker.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/rust-spfchecker" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/rust-spfchecker" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -542,7 +542,7 @@ const HTML = `<!doctype html>
           </div>
           <div class="card-links">
             <a class="btn-visit" href="https://events.bestow-75.tissue.dev" target="_blank" rel="noopener">↗ Visit</a>
-            <a class="btn-source" href="https://github.com/ki7dk/tissue-examples/tree/main/ts-events-api" target="_blank" rel="noopener">{ } Source</a>
+            <a class="btn-source" href="https://github.com/tissue-systems/tissue-examples/tree/main/ts-events-api" target="_blank" rel="noopener">{ } Source</a>
           </div>
         </div>
 
@@ -552,7 +552,7 @@ const HTML = `<!doctype html>
     <div class="deploy-note">
       <p>
         All cells deployed with <code>ribo deploy</code> from a <code>ribo.toml</code>.
-        Full source at <a href="https://github.com/ki7dk/tissue-examples" target="_blank" rel="noopener">github.com/ki7dk/tissue-examples</a>.
+        Full source at <a href="https://github.com/tissue-systems/tissue-examples" target="_blank" rel="noopener">github.com/tissue-systems/tissue-examples</a>.
         Sign up at <a href="https://tissue.systems">tissue.systems</a> to deploy your own.
       </p>
     </div>

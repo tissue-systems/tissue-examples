@@ -177,7 +177,7 @@ function serveUI(): Response {
 curl -X POST $URL/init
 curl -X POST $URL/events -d '{"title":"Launch","date":"2026-06-01"}'
 curl "$URL/events?date=2026-06-01"</pre>
-<p class="note">Source: <a href="https://github.com/ki7dk/tissue-examples/tree/main/ts-events-api" style="color:#0066ff">github.com/ki7dk/tissue-examples/ts-events-api</a></p>
+<p class="note">Source: <a href="https://github.com/tissue-systems/tissue-examples/tree/main/ts-events-api" style="color:#0066ff">github.com/tissue-systems/tissue-examples/ts-events-api</a></p>
 </body></html>`, { headers: { "content-type": "text/html;charset=utf-8" } });
 }
 

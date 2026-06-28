@@ -172,7 +172,7 @@ const HTML = `<!DOCTYPE html>
     </div>
   </div>
 
-  <p class="powered">Running on <span>tissue</span> · ${APIS.length} concurrent fetches · source at <a href="https://github.com/ki7dk/v8work/tree/main/examples/js-api-racer" style="color:#33ff77;text-decoration:none">github</a></p>
+  <p class="powered">Running on <span>tissue</span> · ${APIS.length} concurrent fetches · source at <a href="https://github.com/tissue-systems/tissue-examples/tree/main/js-api-racer" style="color:#33ff77;text-decoration:none">github</a></p>
 
   <script>
     function msClass(ms) {

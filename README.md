@@ -2,7 +2,7 @@
 
 Example Cells for the [Tissue](https://tissue.systems) edge runtime.
 
-Each subdirectory is a self-contained Cell you can deploy with [`ribo`](https://github.com/ki7dk/tissue-ribo):
+Each subdirectory is a self-contained Cell you can deploy with [`ribo`](https://github.com/tissue-systems/ribo):
 
 ```bash
 cd <example>
@@ -44,6 +44,6 @@ ribo deploy
 
 ## Prerequisites
 
-- [ribo](https://github.com/ki7dk/tissue-ribo) — Tissue deploy CLI
+- [ribo](https://github.com/tissue-systems/ribo) — Tissue deploy CLI
 - [wasm-pack](https://rustwasm.github.io/wasm-pack/) — for Rust examples
 - Rust toolchain with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
