@@ -1,3 +1,3 @@
 [cell]
-name = "demos"
+name = "demo"
 js   = "./cell.js"
