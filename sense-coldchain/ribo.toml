@@ -1,0 +1,11 @@
+[cell]
+name = "sense-coldchain"
+js   = "./cell.js"
+
+[[pulse]]
+schedule = "0 * * * *"   # hourly: prune raw readings older than 30 days
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "sense-coldchain"

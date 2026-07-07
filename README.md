@@ -25,6 +25,12 @@ ribo deploy
 | [js-stream-demo](./js-stream-demo) | Streaming request/response bodies — SSE, full-duplex echo, incremental reads |
 | [qrcode-label](./qrcode-label) | Sci-fi asset label generator with styled QR codes — FILES binding |
 
+## Sensors (Synapse)
+
+| Example | What it shows |
+|---------|---------------|
+| [sense-coldchain](./sense-coldchain) | Cold-chain temperature monitoring — Synapse sensor ingest + C3 excursion log, time-in-range compliance, CSV export, live dashboard |
+
 ## Rust → WASM
 
 | Example | What it shows |
