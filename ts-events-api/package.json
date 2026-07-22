@@ -5,6 +5,6 @@
     "build": "esbuild src/cell.ts --bundle --outfile=dist/cell.js --format=esm"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0"
+    "esbuild": "0.25.12"
   }
 }
