@@ -1,0 +1,13 @@
+[cell]
+name = "doc-markup"
+js   = "./cell.js"
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "doc-markup"
+
+[[bindings]]
+type    = "g7"
+binding = "DOCS"
+bucket  = "markup-docs"

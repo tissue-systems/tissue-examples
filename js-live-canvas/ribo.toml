@@ -1,0 +1,8 @@
+[cell]
+name = "live-canvas"
+js   = "./cell.js"
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "live-canvas"
