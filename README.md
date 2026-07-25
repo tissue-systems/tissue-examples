@@ -24,6 +24,7 @@ ribo deploy
 | [js-growzone](./js-growzone) | USDA plant hardiness zone lookup by US zip code |
 | [js-stream-demo](./js-stream-demo) | Streaming request/response bodies — SSE, full-duplex echo, incremental reads |
 | [qrcode-label](./qrcode-label) | Sci-fi asset label generator with styled QR codes — FILES binding |
+| [js-doc-markup](./js-doc-markup) | Collaborative PDF markup — pdf.js + shared 3-letter sessions, live strokes/text/cursors over SSE, C3 + G7 bindings |
 
 ## Sensors (Synapse)
 
