@@ -25,6 +25,8 @@ ribo deploy
 | [js-stream-demo](./js-stream-demo) | Streaming request/response bodies — SSE, full-duplex echo, incremental reads |
 | [qrcode-label](./qrcode-label) | Sci-fi asset label generator with styled QR codes — FILES binding |
 | [js-doc-markup](./js-doc-markup) | Collaborative PDF markup — pdf.js + shared 3-letter sessions, live strokes/text/cursors over SSE, C3 + G7 bindings |
+| [js-live-canvas](./js-live-canvas) | Real-time shared canvas — live cursors + collaborative drawing over SSE, durable strokes in C3 vs ephemeral in-memory cursors |
+| [js-jsonb-demo](./js-jsonb-demo) | SQLite JSONB in C3 — binary JSON storage, json_extract / ->> / jsonb_set, TEXT-vs-JSONB comparison |
 
 ## Sensors (Synapse)
 
