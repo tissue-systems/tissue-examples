@@ -7,6 +7,6 @@
     "build": "npx esbuild src/cell.js --bundle --outfile=dist/cell.js --format=esm --platform=browser"
   },
   "devDependencies": {
-    "esbuild": "^0.21.0"
+    "esbuild": "^0.25.0"
   }
 }
