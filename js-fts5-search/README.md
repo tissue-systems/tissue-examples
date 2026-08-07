@@ -45,7 +45,7 @@ ribo deploy
 URL=http://localhost:8080/<addr>
 
 curl -X POST $URL/notes -d '{"title":"Garage fork","body":"We mirror Garage from deuxfleurs-org for supply chain control and version pinning."}'
-curl -X POST $URL/notes -d '{"title":"Pulse scheduler","body":"Pulse polls rqlite every 30 seconds and dispatches due schedules to workerd."}'
+curl -X POST $URL/notes -d '{"title":"Pulse scheduler","body":"Pulse polls rqlite every 30 seconds and dispatches due schedules to your Cell."}'
 
 curl "$URL/search?q=schedule"
 # matches "schedules" via stemmed/prefix matching, with a highlighted excerpt
