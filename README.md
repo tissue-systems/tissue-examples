@@ -21,6 +21,7 @@ ribo deploy
 | [js-url-shortener](./js-url-shortener) | URL shortener backed by C3 |
 | [js-fts5-search](./js-fts5-search) | Full-text search in C3 — FTS5 external-content table, sync triggers, `bm25()` ranking |
 | [js-vec-search](./js-vec-search) | Semantic search in C3 — libSQL native vectors: `F32_BLOB`, `vector32()`, `vector_distance_cos()` |
+| [js-vault-secrets](./js-vault-secrets) | Encrypted secrets — `type = "vault"` bindings, HMAC webhook verification, rotation fingerprints, fail-closed readiness |
 | [js-api-racer](./js-api-racer) | Parallel fetch to 6 public APIs, latency benchmark |
 | [js-ai-agent](./js-ai-agent) | LLM agent via Anthropic API |
 | [js-llm-chat](./js-llm-chat) | Streaming LLM chat UI |

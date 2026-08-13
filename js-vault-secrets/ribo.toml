@@ -1,0 +1,33 @@
+[cell]
+name = "vault-secrets"
+js   = "./cell.js"
+
+# ── Non-secret configuration: lives in git, travels in the deploy bundle ──────
+[[bindings]]
+type    = "text"
+binding = "SERVICE_NAME"
+value   = "vault-secrets-demo"
+
+# The /sign route is a signing oracle — useful to test this demo, never correct
+# in a real deployment. Flip to "false" and redeploy to see it disappear.
+[[bindings]]
+type    = "text"
+binding = "ENABLE_SIGNING_HELPER"
+value   = "true"
+
+# ── Secrets: only the key name is here, never the value ──────────────────────
+# Set each one BEFORE the first deploy, then redeploy after every change:
+#   ribo vault set vault-secrets WEBHOOK_SIGNING_SECRET
+#   ribo vault set vault-secrets UPSTREAM_API_KEY
+#   ribo deploy
+#
+# A vault binding with no stored value is simply absent at runtime
+# (env.WEBHOOK_SIGNING_SECRET === undefined) — GET /health turns that into a
+# 503 instead of letting it fail silently.
+[[bindings]]
+type    = "vault"
+binding = "WEBHOOK_SIGNING_SECRET"
+
+[[bindings]]
+type    = "vault"
+binding = "UPSTREAM_API_KEY"
