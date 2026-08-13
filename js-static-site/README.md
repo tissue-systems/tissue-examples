@@ -1,10 +1,10 @@
 # js-static-site
 
-Demonstrates pure static file serving — the Tissue equivalent of Cloudflare Pages.
+Demonstrates pure static file serving — a whole site on Tissue with no cell code.
 
-No JavaScript worker code is needed. `ribo deploy` synthesises a minimal
-pass-through worker automatically and uploads every file in `./public` to a
-dedicated object-storage bucket.
+No JavaScript is needed. `ribo deploy` synthesises a minimal pass-through cell
+automatically and uploads every file in `./public` to a dedicated
+object-storage bucket.
 
 ## ribo.toml
 

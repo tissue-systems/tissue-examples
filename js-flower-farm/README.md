@@ -2,8 +2,8 @@
 
 A dynamic website for a small flower farm — built with a JS cell, a C3 SQLite database for live inventory and a waitlist, and a FILES binding for static assets.
 
-**Live:** https://approx-3fad.dev.tissue.systems  
-**Admin:** https://approx-3fad.dev.tissue.systems/admin
+**Live:** https://flower-farm.bestow-75.tissue.dev  
+**Admin:** https://flower-farm.bestow-75.tissue.dev/admin
 
 ## What it shows
 
@@ -68,7 +68,7 @@ ribo uploads `public/` to a g7 bucket, deploys `cell.js`, and wires up both bind
 
 ```bash
 # Mark dahlias as available with a note
-curl -X POST https://your-cell.dev.tissue.systems/stock \
+curl -X POST https://flower-farm.<your-subdomain>.tissue.dev/stock \
   -H "Content-Type: application/json" \
   -d '{"flower":"dahlias","inStock":true,"note":"Café au Lait variety"}'
 ```
@@ -82,7 +82,7 @@ Open `/admin` in a browser to see the internal dashboard — current stock statu
 The JSON endpoint is also available if you need it for scripting:
 
 ```bash
-curl https://your-cell.dev.tissue.systems/admin/waitlist
+curl https://flower-farm.<your-subdomain>.tissue.dev/admin/waitlist
 ```
 
 ## Images

@@ -168,7 +168,7 @@ fn set(obj: &Object, key: &str, val: JsValue) {
 ///
 /// Key point: because all four passes are CPU-bound they execute sequentially
 /// under V8's cooperative event loop — `future::join4` does not add parallelism
-/// here, exactly as it would behave in a Cloudflare Worker.
+/// here. It structures the code; it does not buy you a second core.
 #[wasm_bindgen]
 pub fn analyse(text: String) -> js_sys::Promise {
     future_to_promise(async move {

@@ -24,7 +24,7 @@ ribo deploy
 ## Try it
 
 ```bash
-curl https://<slug>.dev.tissue.systems/race/json
+curl https://api-racer.<your-subdomain>.tissue.dev/race/json
 ```
 
 ## APIs called
