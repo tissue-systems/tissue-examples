@@ -1,0 +1,22 @@
+# Data tour: a c3 database and a vault secret. GET /selftest exercises exec,
+# prepare/bind, run, all, first, raw, batch (including its rollback), JSON,
+# FTS5 and a constraint error, then signs a string with the vault secret. The
+# secret's value never appears in a response, only its length and whether it
+# is set.
+#
+# Both must exist before the first deploy:
+#   ribo db create tour-data
+#   ribo vault set tour-data TOUR_SECRET
+#   ribo deploy
+[cell]
+name = "tour-data"
+js   = "./cell.js"
+
+[[bindings]]
+type     = "c3"
+binding  = "DB"
+database = "tour-data"
+
+[[bindings]]
+type    = "vault"
+binding = "TOUR_SECRET"

@@ -27,6 +27,7 @@ ribo deploy
 | [js-llm-chat](./js-llm-chat) | Streaming LLM chat UI |
 | [js-growzone](./js-growzone) | USDA plant hardiness zone lookup by US zip code |
 | [js-stream-demo](./js-stream-demo) | Streaming request/response bodies — SSE, full-duplex echo, incremental reads |
+| [feature-tour](./feature-tour) | Three Cells covering every binding type, pulse, vesicle, SSE and WebSockets, each with a `/selftest`, plus `smoke.mjs` to check an environment from outside |
 | [qrcode-label](./qrcode-label) | Sci-fi asset label generator with styled QR codes — FILES binding |
 | [js-doc-markup](./js-doc-markup) | Collaborative PDF markup — pdf.js + shared 3-letter sessions, live strokes/text/cursors over SSE, C3 + G7 bindings |
 | [js-live-canvas](./js-live-canvas) | Real-time shared canvas — live cursors + collaborative drawing over SSE, durable strokes in C3 vs ephemeral in-memory cursors |

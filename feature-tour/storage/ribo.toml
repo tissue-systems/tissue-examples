@@ -1,0 +1,30 @@
+# Storage tour: g7 object storage, a FILES tree, a text binding, a pulse
+# schedule and a webhook route for vesicle. GET /selftest runs every check and
+# answers 200 only when all of them pass.
+#
+#   ribo bucket create tour-storage
+#   ribo deploy
+[cell]
+name = "tour-storage"
+js   = "./cell.js"
+
+[[bindings]]
+type    = "g7"
+binding = "BUCKET"
+bucket  = "tour-storage"
+
+# Only public/ is published. ribo.toml and cell.js sit one level above it.
+[[bindings]]
+type    = "files"
+binding = "ASSETS"
+dir     = "./public"
+
+[[bindings]]
+type    = "text"
+binding = "GREETING"
+value   = "hello from a text binding"
+
+# Every minute the pulse handler writes pulse/last.json into the bucket.
+# /selftest reads it back, so a dead scheduler shows up as a failing check.
+[[pulse]]
+schedule = "* * * * *"

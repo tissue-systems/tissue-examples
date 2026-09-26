@@ -1,0 +1,8 @@
+# Realtime and runtime tour: server-sent events, a WebSocket echo, a streaming
+# request/response echo, outbound fetch, Web Crypto, compression streams and
+# ctx.waitUntil. No bindings, so it deploys anywhere with no setup.
+#
+#   ribo deploy
+[cell]
+name = "tour-realtime"
+js   = "./cell.js"
