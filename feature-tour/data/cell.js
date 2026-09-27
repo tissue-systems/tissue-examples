@@ -111,11 +111,23 @@ async function selftest(env) {
     throw new Error("insert with qty -1 succeeded");
   }));
 
-  checks.push(await check("bind types (null, float, blob)", async () => {
-    const row = await db.prepare("SELECT ? AS n, ? AS f, typeof(?) AS t, length(?) AS len")
-      .bind(null, 1.5, new Uint8Array([1, 2, 3]), new Uint8Array([1, 2, 3])).first();
-    assert(row.n === null && row.f === 1.5 && row.t === "blob" && row.len === 3, JSON.stringify(row));
+  // Parameters travel as JSON, so bytes cannot be bound as a BLOB: store them as
+  // base64 TEXT (or in g7). A BLOB column still reads back, as an array of byte
+  // numbers.
+  checks.push(await check("bind types (null, float, base64 bytes)", async () => {
+    const b64 = btoa(String.fromCharCode(1, 2, 3));
+    const row = await db.prepare("SELECT ? AS n, ? AS f, typeof(?) AS t, ? AS b64")
+      .bind(null, 1.5, b64, b64).first();
+    const bytes = Uint8Array.from(atob(row.b64), c => c.charCodeAt(0));
+    assert(row.n === null && row.f === 1.5 && row.t === "text" && bytes.join(",") === "1,2,3",
+      JSON.stringify(row));
     return row;
+  }));
+
+  checks.push(await check("BLOB column reads back as byte numbers", async () => {
+    const row = await db.prepare("SELECT X'010203' AS b").first();
+    assert(Array.isArray(row.b) && row.b.join(",") === "1,2,3", JSON.stringify(row));
+    return row.b;
   }));
 
   checks.push(await check("FTS5 match", async () => {
