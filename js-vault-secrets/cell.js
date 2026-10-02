@@ -37,7 +37,7 @@ async function index(env) {
     secrets: await secretStatus(env),
     signingHelper: helperEnabled(env) ? "enabled" : "disabled",
     routes: {
-      "GET /health": "readiness — 503 while a required secret is unset",
+      "GET /health": "readiness: 503 while a required secret is unset",
       "POST /sign": "HMAC of the request body, hex-encoded",
       "POST /webhook": "verify x-signature against the request body",
     },

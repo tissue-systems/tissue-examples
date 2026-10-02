@@ -27,13 +27,13 @@ fn get_db() -> Result<JsValue, JsValue> {
         .unwrap_or(JsValue::UNDEFINED);
     if env.is_undefined() || env.is_null() {
         return Err(js_err(
-            "globalThis.env not set — add a [[bindings]] c3 entry in ribo.toml",
+            "globalThis.env not set. Add a [[bindings]] c3 entry in ribo.toml",
         ));
     }
     let db = Reflect::get(&env, &"DB".into()).unwrap_or(JsValue::UNDEFINED);
     if db.is_undefined() || db.is_null() {
         return Err(js_err(
-            "env.DB not bound — binding name in ribo.toml must be \"DB\"",
+            "env.DB not bound. The binding name in ribo.toml must be \"DB\"",
         ));
     }
     Ok(db)
@@ -218,7 +218,7 @@ async fn do_create(body: Value) -> Result<JsValue, JsValue> {
         &[],
     )
     .await?;
-    let contact = rows.pop().ok_or_else(|| js_err("insert failed — no row returned"))?;
+    let contact = rows.pop().ok_or_else(|| js_err("insert failed: no row returned"))?;
     respond(201, json!({ "contact": contact }))
 }
 

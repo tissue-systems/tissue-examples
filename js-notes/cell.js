@@ -1,5 +1,5 @@
 /**
- * js-notes — persistent notes API backed by C3, standard Workers API.
+ * js-notes — persistent notes API backed by C3, standard Request/Response API.
  *
  * Setup:
  *   ribo db create notes && ribo deploy

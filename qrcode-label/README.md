@@ -28,7 +28,7 @@ ribo deploy
 4. Click "Generate Label" to update the preview
 5. Print or download the label as PNG
 
-## Label Fields
+## Label fields
 
 | Field | Example |
 |-------|---------|
@@ -42,7 +42,7 @@ ribo deploy
 | **Mass / Specs** | 2.4 MT // 4.2x3.1x2.8m |
 | **Hazard Class** | MODERATE HAZARD |
 
-## Hazard Classes & Colors
+## Hazard classes & colors
 
 | Class | Color | Use Case |
 |-------|-------|----------|
@@ -52,7 +52,7 @@ ribo deploy
 | BIOHAZARD | Purple | Containment areas |
 | QUARANTINE | Black/Red | Lockdown situations |
 
-## Sample Products
+## Sample products
 
 - Atmosphere Processing Unit
 - Power Loader P-5000
@@ -65,7 +65,7 @@ ribo deploy
 - Seismic Survey Equipment
 - Terraforming Controller
 
-## Sample Colonies & Stations
+## Sample colonies & stations
 
 - Hadley's Hope (Acheron/LV-426)
 - Fury 161
@@ -75,7 +75,7 @@ ribo deploy
 - Freya's Prospect
 - New Galveston
 
-## Sample Crew/Operators
+## Sample crew/operators
 
 - Ripley, E. - WY-0451
 - Dallas, A. - WY-0001
@@ -84,7 +84,7 @@ ribo deploy
 - Bishop - WY-3412
 - Newt - CIV-2187
 
-## Label Sizes
+## Label sizes
 
 Three label sizes are available:
 

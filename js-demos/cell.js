@@ -4,7 +4,7 @@ const HTML = `<!doctype html>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Live Demos | Tissue</title>
-  <meta name="description" content="Sample Cells running live on Tissue — edge functions deployed in seconds.">
+  <meta name="description" content="Sample Cells running live on Tissue: edge functions deployed in seconds.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -205,8 +205,8 @@ const HTML = `<!doctype html>
 
   <main>
     <div class="hero">
-      <h1>Live Demos</h1>
-      <p class="tagline">Sample Cells running on <span class="tech">Tissue</span> — each deployed in seconds with <code>ribo deploy</code>.</p>
+      <h1>Live demos</h1>
+      <p class="tagline">Sample Cells running on <span class="tech">Tissue</span>, each deployed in seconds with <code>ribo deploy</code>.</p>
     </div>
 
     <section>
@@ -218,7 +218,7 @@ const HTML = `<!doctype html>
             <span class="cell-name">hello</span>
             <div class="tag-row"><span class="tag tag-js">JS</span></div>
           </div>
-          <p class="card-desc">Minimal Cell — routing, JSON responses, and an echo endpoint. The shortest path from <code>ribo deploy</code> to a live API.</p>
+          <p class="card-desc">Minimal Cell: routing, JSON responses, and an echo endpoint. The shortest path from <code>ribo deploy</code> to a live API.</p>
           <div class="tech-row">
             <span class="tech">routing</span>
             <span class="tech">JSON responses</span>
@@ -255,7 +255,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-c3">C3</span>
             </div>
           </div>
-          <p class="card-desc">Persistent notes app backed by a C3 SQLite database. Create and delete notes — data survives redeploys, scoped to the cell owner.</p>
+          <p class="card-desc">Persistent notes app backed by a C3 SQLite database. Create and delete notes. Data survives redeploys, scoped to the cell owner.</p>
           <div class="tech-row">
             <span class="tech">C3 SQLite</span>
             <span class="tech">CRUD</span>
@@ -275,7 +275,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-c3">C3</span>
             </div>
           </div>
-          <p class="card-desc">Full CRUD notes REST API in plain JavaScript. Create, read, update, and delete notes with a C3 SQLite database — no framework, no dependencies.</p>
+          <p class="card-desc">Full CRUD notes REST API in plain JavaScript. Create, read, update, and delete notes with a C3 SQLite database, with no framework and no dependencies.</p>
           <div class="tech-row">
             <span class="tech">REST API</span>
             <span class="tech">C3 SQLite</span>
@@ -349,7 +349,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-c3">C3</span>
             </div>
           </div>
-          <p class="card-desc">Stateless LLM chat Cell. Each request is independent — no history between calls. API key stored in C3, never in source.</p>
+          <p class="card-desc">Stateless LLM chat Cell. Each request is independent, with no history between calls. API key stored in C3, never in source.</p>
           <div class="tech-row">
             <span class="tech">Anthropic API</span>
             <span class="tech">C3 key storage</span>
@@ -390,7 +390,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-files">FILES</span>
             </div>
           </div>
-          <p class="card-desc">Flower farm website with live inventory and a visitor waitlist. Stock badges are rendered server-side from C3 on every request. Visitors sign up to be notified when a flower is back — entries land in C3. Includes an <a href="https://flower-farm.bestow-75.tissue.dev/admin" target="_blank" rel="noopener">admin dashboard</a> showing signups and demand per flower.</p>
+          <p class="card-desc">Flower farm website with live inventory and a visitor waitlist. Stock badges are rendered server-side from C3 on every request. Visitors sign up to be notified when a flower is back, and entries land in C3. Includes an <a href="https://flower-farm.bestow-75.tissue.dev/admin" target="_blank" rel="noopener">admin dashboard</a> showing signups and demand per flower.</p>
           <div class="tech-row">
             <span class="tech">live stock badges</span>
             <span class="tech">waitlist → C3</span>
@@ -416,7 +416,7 @@ const HTML = `<!doctype html>
             <span class="cell-name">fib</span>
             <div class="tag-row"><span class="tag tag-wasm">WASM</span></div>
           </div>
-          <p class="card-desc">Fibonacci in Rust/WASM. Computes fib(n) for n up to 93 in Rust and returns the exact result as a string — avoiding IEEE 754 precision loss for large values.</p>
+          <p class="card-desc">Fibonacci in Rust/WASM. Computes fib(n) for n up to 93 in Rust and returns the exact result as a string, which avoids IEEE 754 precision loss for large values.</p>
           <div class="tech-row">
             <span class="tech">wasm-bindgen</span>
             <span class="tech">u64 precision</span>
@@ -433,7 +433,7 @@ const HTML = `<!doctype html>
             <span class="cell-name">primes</span>
             <div class="tag-row"><span class="tag tag-wasm">WASM</span></div>
           </div>
-          <p class="card-desc">Prime counter using async Rust futures compiled to WASM. Demonstrates that CPU-bound futures are cooperative, not parallel — join runs them sequentially.</p>
+          <p class="card-desc">Prime counter using async Rust futures compiled to WASM. Demonstrates that CPU-bound futures are cooperative, not parallel: join runs them sequentially.</p>
           <div class="tech-row">
             <span class="tech">Rust async</span>
             <span class="tech">wasm-bindgen-futures</span>
@@ -470,7 +470,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-c3">C3</span>
             </div>
           </div>
-          <p class="card-desc">Contacts CRUD API written in Rust, compiled to WASM. Rust equivalent of js-notes — same API surface, different implementation language, C3 for persistence.</p>
+          <p class="card-desc">Contacts CRUD API written in Rust, compiled to WASM. Rust equivalent of js-notes: same API surface, different implementation language, C3 for persistence.</p>
           <div class="tech-row">
             <span class="tech">Rust</span>
             <span class="tech">serde_json</span>
@@ -487,7 +487,7 @@ const HTML = `<!doctype html>
             <span class="cell-name">spellcheck</span>
             <div class="tag-row"><span class="tag tag-wasm">WASM</span></div>
           </div>
-          <p class="card-desc">Levenshtein edit-distance spell checker compiled from Rust to WASM. Searches a 210k-word dictionary embedded in the binary — all computation in Rust, zero JS business logic.</p>
+          <p class="card-desc">Levenshtein edit-distance spell checker compiled from Rust to WASM. Searches a 210k-word dictionary embedded in the binary. All computation happens in Rust, with no JS business logic.</p>
           <div class="tech-row">
             <span class="tech">Rust</span>
             <span class="tech">wasm-bindgen</span>
@@ -505,7 +505,7 @@ const HTML = `<!doctype html>
             <span class="cell-name">spfchecker</span>
             <div class="tag-row"><span class="tag tag-wasm">WASM</span></div>
           </div>
-          <p class="card-desc">SPF DNS record validator. Browser fetches TXT records from 1.1.1.1 DoH and follows <code>include:</code> chains recursively; Rust validates against RFC 7208 — 10-lookup limit, syntax errors, dangerous configurations.</p>
+          <p class="card-desc">SPF DNS record validator. Browser fetches TXT records from 1.1.1.1 DoH and follows <code>include:</code> chains recursively; Rust validates against RFC 7208: 10-lookup limit, syntax errors, dangerous configurations.</p>
           <div class="tech-row">
             <span class="tech">Rust</span>
             <span class="tech">RFC 7208</span>
@@ -533,7 +533,7 @@ const HTML = `<!doctype html>
               <span class="tag tag-c3">C3</span>
             </div>
           </div>
-          <p class="card-desc">Typed events/calendar REST API written in TypeScript. Compiled to JS via esbuild as a <code>ribo.toml</code> build step — the TS source never leaves your machine.</p>
+          <p class="card-desc">Typed events/calendar REST API written in TypeScript. Compiled to JS via esbuild as a <code>ribo.toml</code> build step, so the TS source never leaves your machine.</p>
           <div class="tech-row">
             <span class="tech">TypeScript</span>
             <span class="tech">esbuild</span>

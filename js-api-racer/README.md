@@ -6,7 +6,7 @@ Fans out HTTP requests to six public APIs simultaneously from the Tissue edge, m
 
 - `Promise.all` for true concurrent outbound fetch
 - Wall-clock vs summed latency (parallelism factor)
-- Latency is measured **from the cell** — not from the browser
+- Latency is measured **from the cell**, not from the browser
 
 ## Routes
 

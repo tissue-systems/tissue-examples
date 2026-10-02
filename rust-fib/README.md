@@ -1,6 +1,6 @@
 # rust-fib
 
-Fibonacci in plain Rust/WASM — no `wasm-bindgen`, no JS glue.
+Fibonacci in plain Rust/WASM, with no `wasm-bindgen`, no JS glue.
 Uses a raw `#[no_mangle] extern "C"` export and the legacy numeric-argument invoke route.
 
 ## Deploy

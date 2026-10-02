@@ -8,7 +8,7 @@ secret lives in the vault; `ribo.toml` carries only the key name.
 
 ## Setup
 
-The vault value must exist before the first deploy — a `vault` binding with nothing stored is
+The vault value must exist before the first deploy. A `vault` binding with nothing stored is
 absent at runtime (`env.WEBHOOK_SIGNING_SECRET === undefined`), not empty.
 
 ```bash
@@ -23,9 +23,9 @@ reaches `ribo.toml`, git, the deploy bundle, or your shell history.
 
 | Method | Path | Description |
 |---|---|---|
-| `GET` | `/` | Which secrets are configured, each as a fingerprint — never the value |
+| `GET` | `/` | Which secrets are configured, each as a fingerprint, never the value |
 | `GET` | `/health` | `200` when every required secret is present, `503` with the missing list |
-| `POST` | `/sign` | HMAC-SHA256 of the request body, hex — a test helper, gated by a text binding |
+| `POST` | `/sign` | HMAC-SHA256 of the request body, hex. A test helper, gated by a text binding |
 | `POST` | `/webhook` | Verifies `x-signature` against the request body |
 
 ## Try it
@@ -87,13 +87,13 @@ Set it to `"false"`, redeploy, and `/sign` returns 404 while `/webhook` keeps wo
 
 ## What this demonstrates
 
-- `type = "vault"` versus `type = "text"` — the secret's key name is in git, its value never is,
+- `type = "vault"` versus `type = "text"`: the secret's key name is in git, its value never is,
   while non-secret configuration stays in `ribo.toml` where it is easy to read and diff
 - Reading a vault value from `env` exactly like any other string binding, with no Cell-side
   decryption code
 - Reporting secret **presence** without echoing the value, and using a domain-separated
   fingerprint to verify a rotation reached the running instance
-- Constant-time signature comparison via `crypto.subtle.verify` — computing the expected HMAC
+- Constant-time signature comparison via `crypto.subtle.verify`, because computing the expected HMAC
   and testing it with `===` leaks the correct prefix through response timing
 - A readiness route that converts a missing secret from a silent misbehaviour into a 503
 - Failing closed: a request that cannot be verified is rejected, never accepted because the

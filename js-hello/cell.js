@@ -1,5 +1,5 @@
 /**
- * js-hello — minimal Tissue Cell using the standard Workers API.
+ * js-hello — minimal Tissue Cell using the standard Request/Response API.
  *
  * Routes:
  *   GET  /               → { message, method, path }

@@ -19,7 +19,7 @@
   .note{font-size:.72rem;color:#444;margin-top:2.5rem;line-height:1.6}
 </style></head><body>
 <h1>primes</h1>
-<p class="sub">Count primes in a range — Rust/WASM, async futures.</p>
+<p class="sub">Count primes in a range with Rust/WASM async futures.</p>
 
 <label>Count primes in [start, end)</label>
 <div class="row">
@@ -41,8 +41,8 @@
 <div id="err"></div>
 
 <p class="note">
-  The async <code>count_primes_joined</code> export wraps CPU-bound work in futures::join —<br>
-  both futures run sequentially because neither yields mid-computation.<br>
+  The async <code>count_primes_joined</code> export wraps CPU-bound work in futures::join.<br>
+  Both futures run sequentially because neither yields mid-computation.<br>
   Invoke directly: <code>POST /invoke/&lt;addr&gt;/count_primes_joined {"args":[2,50000,50000,100000]}</code>
 </p>
 <script>

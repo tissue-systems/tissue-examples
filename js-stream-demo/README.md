@@ -17,7 +17,7 @@ ribo deploy
 | Method | Path | Description |
 |---|---|---|
 | `GET` | `/` | Usage info |
-| `GET` | `/sse` | Server-Sent Events — 5 ticks, 500ms apart |
+| `GET` | `/sse` | Server-Sent Events, 5 ticks, 500ms apart |
 | `POST` | `/echo` | Streams the request body back unchanged (full duplex) |
 | `POST` | `/count` | Reads the request body incrementally → `{ bytes, chunks }` |
 
@@ -38,8 +38,8 @@ curl -X POST --data-binary @some-large-file $URL/count
 
 ## What this demonstrates
 
-- A Cell's `fetch(request, env, ctx)` receives the standard Workers `Request`
-  object. `request.body` is a `ReadableStream` — `/count` reads it chunk by
+- A Cell's `fetch(request, env, ctx)` receives a standard `Request`
+  object. `request.body` is a `ReadableStream`, and `/count` reads it chunk by
   chunk via `getReader()` instead of waiting for `request.text()` /
   `request.arrayBuffer()` to buffer the whole thing.
 - A Cell can return `new Response(stream, ...)` and the body streams to the
@@ -48,4 +48,4 @@ curl -X POST --data-binary @some-large-file $URL/count
 - This applies to **JS Cells only**. WASM Cells cross the JS/WASM boundary as
   a single JSON string (`{ method, url, headers, body }` in,
   `{ status, headers, body }` out), so request and response bodies are fully
-  buffered for those — see [Cell Limitations](https://tissue.systems/docs/cells/limitations/).
+  buffered for those. See [Cell Limitations](https://tissue.systems/docs/cells/limitations/).

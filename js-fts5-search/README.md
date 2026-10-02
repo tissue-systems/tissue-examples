@@ -3,19 +3,18 @@
 Keyword full-text search over notes using SQLite's **FTS5** module.
 
 FTS5 ships in every standard SQLite build, including the libSQL engine that
-powers c3 — there's nothing to enable. This example exists as a canonical
+powers c3, so there's nothing to enable. This example exists as a canonical
 reference for the "external content" FTS5 pattern: a virtual table that
 indexes another table's columns without duplicating storage, kept in sync
 with triggers.
 
-See [`plan-sqlite-vec.md`](../../plans/plan-sqlite-vec.md) for the broader
-context — this is the "keyword search" half of that plan; its sibling
-[`js-vec-search`](../js-vec-search) is the "semantic search" half.
+This is the keyword search half. Its sibling,
+[`js-vec-search`](../js-vec-search), does semantic search.
 
 ## What it shows
 
 - `CREATE VIRTUAL TABLE ... USING fts5(..., content='notes', content_rowid='id')`
-  — indexing an existing table without copying its data
+  indexing an existing table without copying its data
 - `AFTER INSERT/UPDATE/DELETE` triggers that keep the FTS index in sync
 - `MATCH` queries ranked by `bm25()` (SQLite's relevance scoring)
 - `snippet()` for highlighted excerpts around matches

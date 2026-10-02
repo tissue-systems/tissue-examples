@@ -26,14 +26,14 @@ const FLOWERS = [
     name: 'Sunflowers',
     img:  '/images/sunflowers.jpg',
     alt:  'Sunflower field at golden hour',
-    desc: 'Tall stems in classic yellow and deep burgundy. Autumn Beauty and Moulin Rouge — 10-day vase life.',
+    desc: 'Tall stems in classic yellow and deep burgundy. Autumn Beauty and Moulin Rouge, with a 10-day vase life.',
   },
   {
     id:   'dahlias',
     name: 'Dahlias',
     img:  '/images/dahlias.jpg',
     alt:  'Pink and coral dahlias in full bloom',
-    desc: 'Dinner-plate and ball varieties in pink, coral, and burgundy. 42 varieties — something different every week.',
+    desc: 'Dinner-plate and ball varieties in pink, coral, and burgundy. 42 varieties, so something different every week.',
   },
 ];
 
@@ -106,7 +106,7 @@ async function getStock(db) {
 function stockBadge(inStock, note) {
   const cls   = inStock ? 'stock-yes' : 'stock-no';
   const label = inStock ? '✓ Available this week' : 'Not this week';
-  const extra = note ? ` — ${note}` : '';
+  const extra = note ? ` · ${note}` : '';
   return `<span class="stock-badge ${cls}">${label}${extra}</span>`;
 }
 
@@ -145,7 +145,7 @@ function renderHomepage(stock) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Meadowlark Farm — Cut Flowers · Sonoma County</title>
+  <title>Meadowlark Farm · Cut Flowers · Sonoma County</title>
   <meta name="description" content="Fresh-cut flowers grown on our 12-acre farm in Petaluma, California. Find us at Sonoma County farmers markets every Saturday and Sunday.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -184,7 +184,7 @@ function renderHomepage(stock) {
     <div class="container">
       <h2>What's blooming this week</h2>
       <p class="section-sub">Updated every Saturday morning before market.</p>
-      ${allOut ? '<p class="section-sub out-of-season-note">We\'re between seasons — check back soon, or sign up below to be notified.</p>' : ''}
+      ${allOut ? '<p class="section-sub out-of-season-note">We\'re between seasons. Check back soon, or sign up below to be notified.</p>' : ''}
       <div class="flower-grid">${cards}</div>
       <div class="text-center">
         <a href="/flowers.html" class="btn-secondary">Full seasonal calendar →</a>
@@ -240,11 +240,11 @@ function renderHomepage(stock) {
           <h2>Mixed bouquets, wrapped and ready</h2>
           <p>Every market day we bring pre-wrapped seasonal bouquets in three sizes, assembled that morning from whatever's at peak.</p>
           <ul class="bouquet-sizes">
-            <li><strong>Small</strong> — a simple bunch for the kitchen table</li>
-            <li><strong>Medium</strong> — a full mason-jar arrangement</li>
-            <li><strong>Large</strong> — makes a real statement</li>
+            <li><strong>Small</strong>: a simple bunch for the kitchen table</li>
+            <li><strong>Medium</strong>: a full mason-jar arrangement</li>
+            <li><strong>Large</strong>: makes a real statement</li>
           </ul>
-          <p>We also take custom orders for weddings and events — email us at least two weeks out.</p>
+          <p>We also take custom orders for weddings and events. Email us at least two weeks out.</p>
           <p class="farm-note">Cash and card accepted. No pre-orders for market day bouquets.</p>
         </div>
       </div>
@@ -254,7 +254,7 @@ function renderHomepage(stock) {
   <section class="newsletter" id="notify">
     <div class="container">
       <h2>Notify me when it's back</h2>
-      <p>Pick the flowers you're after and leave your email — we'll send you a note the week they're available again.</p>
+      <p>Pick the flowers you're after and leave your email, and we'll send you a note the week they're available again.</p>
       <form class="notify-form" id="notify-form">
         <div class="flower-checks">${checkboxes()}</div>
         <div class="notify-row">
@@ -306,7 +306,7 @@ function renderHomepage(stock) {
         const res  = await fetch('/notify', { method: 'POST', body: data });
         const json = await res.json();
         if (res.ok) {
-          status.textContent  = "✓ You're on the list — we'll be in touch!";
+          status.textContent  = "✓ You're on the list. We'll be in touch!";
           status.className    = 'notify-status ok';
           form.reset();
           btn.textContent = 'Notify me';
@@ -317,7 +317,7 @@ function renderHomepage(stock) {
           btn.textContent = 'Notify me';
         }
       } catch {
-        status.textContent = 'Network error — please try again.';
+        status.textContent = 'Network error. Please try again.';
         status.className   = 'notify-status err';
         btn.disabled = false;
         btn.textContent = 'Notify me';
@@ -375,7 +375,7 @@ function renderAdminPage(stock, waitlist) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin — Meadowlark Farm</title>
+  <title>Admin · Meadowlark Farm</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -459,7 +459,7 @@ export default {
       return await handleRequest(request, env);
     } catch (err) {
       console.error('Unhandled error:', err);
-      return new Response('Something went wrong — please try again.', {
+      return new Response('Something went wrong. Please try again.', {
         status: 500,
         headers: { 'content-type': 'text/plain; charset=utf-8' },
       });

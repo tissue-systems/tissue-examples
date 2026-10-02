@@ -211,7 +211,7 @@ pub fn analyse(text: String) -> js_sys::Promise {
         set(&result, "palindrome_count",     JsValue::from_f64(palins.count as f64));
         set(&result, "palindrome_examples",  JsValue::from_str(&palins.examples.join(", ")));
         set(&result, "concurrency_model",    JsValue::from_str(
-            "future::join4 + yield_now() — cooperative interleaving via Poll::Pending",
+            "future::join4 + yield_now(), cooperative interleaving via Poll::Pending",
         ));
 
         Ok(result.into())
@@ -284,7 +284,7 @@ fn analyse_sync(text: &str) -> Value {
         "longest_word_length": longest.len(),
         "palindrome_count": pal_count,
         "palindrome_examples": palins.join(", "),
-        "concurrency_model": "future::join4 + yield_now() — cooperative interleaving via Poll::Pending",
+        "concurrency_model": "future::join4 + yield_now(), cooperative interleaving via Poll::Pending",
     })
 }
 

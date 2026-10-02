@@ -22,10 +22,10 @@ Response fields: `word_count`, `line_count`, `char_count`, `avg_word_length`,
 ## What this demonstrates
 
 - `future::join4` running four passes (word count, char frequency, longest word, palindromes)
-  that interleave via `yield_now().await` — each pass advances a chunk, yields, then another continues
+  that interleave via `yield_now().await`: each pass advances a chunk, yields, then another continues
 - `yield_now()` returns `Poll::Pending` exactly once, triggering the executor to poll other futures,
-  then immediately reschedules itself — observable, explicit cooperative multitasking
-- Why this matters: in a Tissue Cell, there is no thread pool. All futures share
+  then immediately reschedules itself, so the cooperative multitasking is explicit and observable
+- In a Tissue Cell there is no thread pool. All futures share
   one thread. `yield_now()` is the only way to give other tasks a turn mid-computation.
 - The `concurrency_model` field in the response summarises this for inspection
 

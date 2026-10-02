@@ -31,6 +31,6 @@ curl -X POST $URL/echo -d '{"ping":true}'
 
 ## What this demonstrates
 
-- Smallest possible Cell — `ribo.toml` with just `name` and `js`, no build step
+- Smallest possible Cell: `ribo.toml` with just `name` and `js`, no build step
 - Routing by `method` + path segments parsed from the URL
-- The `fetch(request, env, ctx)` export contract — standard Workers `Request`/`Response` objects (WASM Cells use a JSON `req_json`/`{status,headers,body}` contract instead)
+- The `fetch(request, env, ctx)` export contract, with standard `Request`/`Response` objects (WASM Cells use a JSON `req_json`/`{status,headers,body}` contract instead)

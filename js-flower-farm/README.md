@@ -1,17 +1,17 @@
 # js-flower-farm
 
-A dynamic website for a small flower farm — built with a JS cell, a C3 SQLite database for live inventory and a waitlist, and a FILES binding for static assets.
+A dynamic website for a small flower farm, built with a JS cell, a C3 SQLite database for live inventory and a waitlist, and a FILES binding for static assets.
 
 **Live:** https://flower-farm.bestow-75.tissue.dev  
 **Admin:** https://flower-farm.bestow-75.tissue.dev/admin
 
 ## What it shows
 
-- **Dynamic homepage** — flower availability is read from C3 on every request and rendered server-side
-- **Waitlist signup** — visitors pick flowers and leave an email; entries are written to C3
-- **Admin stock endpoint** — `POST /stock` lets the farm update availability without redeploying
-- **FILES binding** — CSS, images, and inner pages are served from g7 object storage
-- **C3 SQLite** — two tables: `stock` (per-flower availability) and `waitlist` (email signups)
+- **Dynamic homepage**: flower availability is read from C3 on every request and rendered server-side
+- **Waitlist signup**: visitors pick flowers and leave an email; entries are written to C3
+- **Admin stock endpoint**: `POST /stock` lets the farm update availability without redeploying
+- **FILES binding**: CSS, images, and inner pages are served from g7 object storage
+- **C3 SQLite**: two tables: `stock` (per-flower availability) and `waitlist` (email signups)
 
 ## How it works
 
@@ -62,7 +62,7 @@ Then deploy:
 ribo deploy
 ```
 
-ribo uploads `public/` to a g7 bucket, deploys `cell.js`, and wires up both bindings. The C3 database is referenced by name in `ribo.toml` — `cell.js` receives it as `env.DB`.
+ribo uploads `public/` to a g7 bucket, deploys `cell.js`, and wires up both bindings. The C3 database is referenced by name in `ribo.toml`, and `cell.js` receives it as `env.DB`.
 
 ## Updating stock
 
@@ -77,7 +77,7 @@ If you set `STOCK_SECRET` in `ribo.toml`, add `-H "Authorization: Bearer <secret
 
 ## Admin dashboard
 
-Open `/admin` in a browser to see the internal dashboard — current stock status, waitlist demand per flower, and every signup with email and date.
+Open `/admin` in a browser to see the internal dashboard: current stock status, waitlist demand per flower, and every signup with email and date.
 
 The JSON endpoint is also available if you need it for scripting:
 

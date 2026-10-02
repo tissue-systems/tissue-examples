@@ -25,8 +25,8 @@ curl -X POST http://localhost:8080/invoke/$ADDR/count_primes_joined \
 
 ## What this demonstrates
 
-- `wasm_bindgen_futures::future_to_promise` — wrapping a Rust async fn as a JS Promise
+- `wasm_bindgen_futures::future_to_promise` wrapping a Rust async fn as a JS Promise
 - **CPU-bound futures are not parallel**: `future::join` on synchronous work runs range 1
   to completion before range 2 starts, because neither future ever yields mid-computation
-- Async Rust in WASM is cooperative, not parallel — true in any single-threaded V8 environment
+- Async Rust in WASM is cooperative, not parallel. That's true in any single-threaded V8 environment
 - Compare with `rust-analyst` which uses `yield_now()` to make interleaving explicit

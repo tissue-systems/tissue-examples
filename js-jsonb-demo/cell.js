@@ -100,7 +100,7 @@ async function runDemos(env) {
   await q(
     "1 · Storage footprint",
     "The identical document as TEXT vs JSONB. JSONB drops whitespace and " +
-    "stores a compact binary tree, so it is smaller on disk — and that is the " +
+    "stores a compact binary tree, so it is smaller on disk, and those are the " +
     "same bytes SQLite reads at query time.",
     `SELECT
         json_extract(doc, '$.name')      AS product,
@@ -154,7 +154,7 @@ async function runDemos(env) {
   await q(
     "4 · Unnest arrays (json_each over JSONB)",
     "json_each explodes the tags array of every product into rows so we can " +
-    "GROUP BY across the whole catalog — a join/aggregate you cannot express " +
+    "GROUP BY across the whole catalog, a join/aggregate you cannot express " +
     "against opaque JSON text.",
     `SELECT tag.value AS tag, COUNT(*) AS products
      FROM products, json_each(products.doc, '$.tags') AS tag
@@ -181,7 +181,7 @@ async function runDemos(env) {
   await q(
     "6 · In-place partial mutation",
     "jsonb_set / jsonb_insert edit nested fields inside the stored blob in a " +
-    "single UPDATE — no SELECT, JSON.parse, mutate, JSON.stringify, UPDATE " +
+    "single UPDATE, with no SELECT, JSON.parse, mutate, JSON.stringify, UPDATE " +
     "round-trip in application code.",
     `UPDATE products
         SET doc = jsonb_insert(
@@ -200,7 +200,7 @@ async function runDemos(env) {
   // 7. Reshape a JSONB doc into a new JSON object — projection.
   await q(
     "7 · Reshape into a new object",
-    "json_object + JSONB accessors project a trimmed view — pick nested fields, " +
+    "json_object + JSONB accessors project a trimmed view: pick nested fields, " +
     "compute a derived one, and hand back clean JSON to the client.",
     `SELECT json_object(
         'sku',      'P' || printf('%03d', id),
@@ -329,11 +329,11 @@ function renderHtml(demos) {
       </svg>
       <b>tissue · c3</b>
     </div>
-    <h1>The full power of <em>JSONB</em></h1>
+    <h1>SQLite <em>JSONB</em> in c3</h1>
     <p class="lede">c3 is a SQL API backed by SQLite (libSQL), so it ships the whole
       JSON1 + <code>JSONB</code> toolkit. Every product below is stored twice in one
-      table — once as plain JSON <code>TEXT</code>, once as a binary <code>JSONB</code>
-      blob — and every query here runs live against c3. JSONB keeps documents smaller,
+      table, once as plain JSON <code>TEXT</code> and once as a binary <code>JSONB</code>
+      blob, and every query here runs live against c3. JSONB keeps documents smaller,
       lets <code>-&gt;&gt;</code> read nested fields without re-parsing, indexes nested
       keys, and mutates deep fields in place with <code>jsonb_set</code>.</p>
   </header>

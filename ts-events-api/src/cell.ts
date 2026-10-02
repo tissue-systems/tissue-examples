@@ -1,5 +1,5 @@
 /**
- * ts-events-api — typed events/calendar API in TypeScript, standard Workers API.
+ * ts-events-api — typed events/calendar API in TypeScript, standard Request/Response API.
  *
  * Setup:
  *   ribo db create events
@@ -156,7 +156,7 @@ function serveUI(): Response {
   .note{font-size:.75rem;color:#555;margin-top:2rem}
 </style></head><body>
 <h1>ts-events-api</h1>
-<p class="sub">Typed events/calendar REST API — TypeScript compiled with esbuild.</p>
+<p class="sub">Typed events/calendar REST API in TypeScript, compiled with esbuild.</p>
 <h2>Setup</h2>
 <pre>curl -X POST /init</pre>
 <h2>Routes</h2>

@@ -82,7 +82,7 @@ const HTML = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>API Racer — tissue cell</title>
+  <title>API Racer · tissue cell</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
     :root {
@@ -145,7 +145,7 @@ const HTML = `<!DOCTYPE html>
   <div class="top">
     <h1>API Racer</h1>
     <p class="sub">Fans out to ${APIS.length} public APIs simultaneously from the tissue edge.
-    Measures wall-clock latency from the cell — not from your browser.</p>
+    Measures wall-clock latency from the cell, not from your browser.</p>
   </div>
 
   <button id="btn" onclick="race()">Race</button>

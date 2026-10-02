@@ -143,7 +143,7 @@ fn analyze_domain(
         violations.push(Violation {
             code: "MULTIPLE_SPF".into(),
             severity: "error".into(),
-            message: format!("'{domain}' has {spf_count} SPF records — RFC 7208 requires exactly one"),
+            message: format!("'{domain}' has {spf_count} SPF records, but RFC 7208 requires exactly one"),
         });
     }
 
@@ -202,7 +202,7 @@ fn analyze_domain(
             violations.push(Violation {
                 code: "PASS_ALL".into(),
                 severity: "error".into(),
-                message: "'+all' allows any server to send mail as your domain — this effectively disables SPF protection".into(),
+                message: "'+all' allows any server to send mail as your domain, which effectively disables SPF protection".into(),
             });
         }
 
@@ -249,7 +249,7 @@ fn analyze_domain(
         violations.push(Violation {
             code: "MISSING_ALL".into(),
             severity: "warning".into(),
-            message: format!("'{domain}' has no 'all' mechanism — unauthenticated mail result is undefined"),
+            message: format!("'{domain}' has no 'all' mechanism, so the result for unauthenticated mail is undefined"),
         });
     }
 
@@ -331,7 +331,7 @@ fn run_analysis(req: AnalyzeRequest) -> AnalysisResult {
             code: "TOO_MANY_LOOKUPS".into(),
             severity: "error".into(),
             message: format!(
-                "SPF requires {total_lookups} DNS lookups — RFC 7208 §4.6.4 limits this to 10. \
+                "SPF requires {total_lookups} DNS lookups, but RFC 7208 §4.6.4 limits this to 10. \
                  Receivers may return PermError and reject mail."
             ),
         });
@@ -340,7 +340,7 @@ fn run_analysis(req: AnalyzeRequest) -> AnalysisResult {
             code: "NEAR_LOOKUP_LIMIT".into(),
             severity: "warning".into(),
             message: format!(
-                "{total_lookups}/10 DNS lookups used — approaching the RFC 7208 limit. \
+                "{total_lookups}/10 DNS lookups used, approaching the RFC 7208 limit. \
                  Adding more include: directives could push it over."
             ),
         });
@@ -353,7 +353,7 @@ fn run_analysis(req: AnalyzeRequest) -> AnalysisResult {
         format!("No SPF record found for {domain}")
     } else if has_errors {
         let count = violations.iter().filter(|v| v.severity == "error").count();
-        format!("{} error{} found — SPF will likely fail or be ignored by receivers",
+        format!("{} error{} found. SPF will likely fail or be ignored by receivers",
             count, if count == 1 { "" } else { "s" })
     } else if violations.is_empty() {
         format!("SPF record for {domain} looks good ({total_lookups}/10 DNS lookups)")

@@ -1,6 +1,6 @@
 /**
  * js-ai-agent — stateful AI agent with C3-persisted conversation memory.
- * Standard Workers API.
+ * Standard Request/Response API.
  *
  * Setup:
  *   ribo db create agent && ribo deploy
@@ -90,7 +90,7 @@ async function sendMessage(DB, sessionId, body) {
   if (!session) throw typed(404, `Session ${sessionId} not found`);
 
   const apiKey = await cfg(DB, "api_key");
-  if (!apiKey) throw typed(503, "API key not configured — POST /configure first");
+  if (!apiKey) throw typed(503, "API key not configured. POST /configure first");
   const systemPrompt = await cfg(DB, "system_prompt") ?? DEFAULT_SYSTEM;
 
   const { results: history } = await DB.prepare(

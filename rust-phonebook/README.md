@@ -2,7 +2,7 @@
 
 Contacts CRUD API written in Rust, compiled to WebAssembly via `wasm-pack`.
 Uses the Tissue Cell `fetch` handler model and a C3 database for persistence.
-The Rust equivalent of `js-notes` — same API surface, different implementation language.
+The Rust equivalent of `js-notes`: same API surface, different implementation language.
 
 ## Setup
 

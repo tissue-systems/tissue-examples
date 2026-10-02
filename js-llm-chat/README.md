@@ -1,6 +1,6 @@
 # js-llm-chat
 
-Stateless LLM chat Cell. Each request is independent — no history between calls.
+Stateless LLM chat Cell. Each request is independent, with no history between calls.
 Calls the Anthropic Messages API; the API key is stored in C3 so it never appears in source.
 
 **Requires an Anthropic API key** (`sk-ant-...`).
@@ -44,7 +44,7 @@ Default model: `claude-haiku-4-5-20251001`. Available: `claude-haiku-4-5-2025100
 
 ## What this demonstrates
 
-- Cells can call external HTTP APIs (`globalThis.fetch` — distinct from the exported `fetch`)
+- Cells can call external HTTP APIs (`globalThis.fetch`, distinct from the exported `fetch`)
 - C3 as a config/secrets store: the API key lives in the database, not in code or env vars
 - Stateless AI: every call is a fresh context, ideal for one-shot completions and summarisation
 - The fresh-isolate-per-request model means no global state leaks between callers

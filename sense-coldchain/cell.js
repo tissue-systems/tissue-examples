@@ -624,7 +624,7 @@ async function renderAssetDetail(DB, device) {
       </tr>`;
     }
   } else {
-    excRows = `<tr><td colspan="6" class="empty">No excursions recorded — asset has stayed in range</td></tr>`;
+    excRows = `<tr><td colspan="6" class="empty">No excursions recorded. The asset has stayed in range.</td></tr>`;
   }
 
   // Current status
@@ -635,7 +635,7 @@ async function renderAssetDetail(DB, device) {
     ? `<span class="badge badge-warn">EXCURSION ${esc(openExc.kind.toUpperCase())} · ${esc(fmtDuration((Date.now() - new Date(openExc.started_at).getTime()) / 1000))}</span>`
     : `<span class="badge badge-ok">IN RANGE</span>`;
 
-  return page(`${esc(asset.name)} — Cold-Chain Monitor`, `
+  return page(`${esc(asset.name)} · Cold-Chain Monitor`, `
     <div class="hdr">
       <div>
         <div style="font-size:.82rem;color:#94a3b8;margin-bottom:.3rem"><a href="/">← All assets</a></div>
@@ -648,7 +648,7 @@ async function renderAssetDetail(DB, device) {
     </div>
 
     <div class="section">
-      <h2>Temperature — last 200 readings</h2>
+      <h2>Temperature, last 200 readings</h2>
       <div class="chart-wrap">${svg}</div>
       <p class="chart-legend" style="margin-top:.5rem">
         <span class="leg-red">— — max safe (${esc(asset.max_c)} °C)</span>
@@ -672,7 +672,7 @@ async function renderAssetDetail(DB, device) {
     </div>
 
     <div class="section">
-      <h2>Excursion log — last 50</h2>
+      <h2>Excursion log, last 50</h2>
       <table>
         <thead>
           <tr>

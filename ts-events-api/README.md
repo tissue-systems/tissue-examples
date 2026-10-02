@@ -43,4 +43,4 @@ curl -X DELETE $URL/events/2
 - TypeScript → JS compilation as a `ribo.toml` build step (no Makefile, no CI config)
 - Type-safe `C3Database` interface matching the C3 client's actual return shapes
 - `esbuild` for fast, dependency-free bundling: `src/cell.ts` → single `dist/cell.js`
-- The build output (`dist/cell.js`) is what gets uploaded — the TS source never leaves the machine
+- The build output (`dist/cell.js`) is what gets uploaded. The TS source never leaves the machine

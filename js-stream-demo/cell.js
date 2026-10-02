@@ -1,5 +1,5 @@
 /**
- * js-stream-demo — Cells get standard Workers Request/Response objects, so
+ * js-stream-demo — Cells get standard Request/Response objects, so
  * bodies are live ReadableStreams in both directions: a Cell can start
  * responding before it has finished reading the request, and a client can
  * start receiving a response before the Cell has finished producing it.
@@ -77,7 +77,7 @@ async function count(request) {
 function usage() {
   return Response.json({
     routes: {
-      "GET /sse": "Server-Sent Events — 5 ticks, 500ms apart",
+      "GET /sse": "Server-Sent Events, 5 ticks 500ms apart",
       "POST /echo": "Streams the request body back unchanged (full duplex)",
       "POST /count": "Reads the request body incrementally → { bytes, chunks }",
     },

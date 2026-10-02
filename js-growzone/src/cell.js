@@ -115,7 +115,7 @@ const HTML = `<!DOCTYPE html>
 <header>
   <div class="badge">USDA 2023 Data</div>
   <h1>Grow Zone Lookup</h1>
-  <p>Enter a US zip code to find your USDA Plant Hardiness Zone — the standard guide for what plants survive your winters.</p>
+  <p>Enter a US zip code to find your USDA Plant Hardiness Zone, the standard guide for what plants survive your winters.</p>
 </header>
 <div class="card">
   <div class="input-row">

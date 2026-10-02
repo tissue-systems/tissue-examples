@@ -26,7 +26,7 @@ ribo deploy
 ## Register an asset
 
 An "asset" is a named monitored unit with its own safe range. Register one before
-sending data (or let auto-create handle it — see below):
+sending data (or let auto-create handle it, see below):
 
 ```bash
 # Walk-in fridge: safe 0–8 °C
@@ -40,7 +40,7 @@ curl -X POST https://<cell-url>/assets \
   -d '{"device":"dev_xyz98765","name":"Pharmacy Freezer 1","min_c":-25,"max_c":-15}'
 ```
 
-The upsert is idempotent — re-POST to change the name or adjust the safe range.
+The upsert is idempotent: re-POST to change the name or adjust the safe range.
 
 ### Auto-create
 
@@ -152,9 +152,9 @@ falls within [min_c, max_c], divided by total temperature readings in the window
 expressed as a percentage.
 
 **Why this approximation**: It is simple, transparent, and accurate when readings
-arrive at a regular interval (which sensor-test guarantees). The alternative — a
+arrive at a regular interval (which sensor-test guarantees). The alternative, a
 time-weighted approach that sums excursion `duration_s` values and subtracts from
-the window length — would be more accurate for irregular or gappy data, but requires
+the window length, would be more accurate for irregular or gappy data, but requires
 careful handling of excursions that straddle window boundaries. The sample-based
 method is honest about its assumption and sufficient for the example use case.
 
@@ -162,7 +162,7 @@ method is honest about its assumption and sufficient for the example use case.
 
 ## Excursion tracking (stateless)
 
-Cells are stateless between requests — each fetch/sensor invocation is independent.
+Cells are stateless between requests: each fetch/sensor invocation is independent.
 Excursion state is maintained entirely in the database:
 
 1. On every temperature reading, the ingest path queries for an open excursion row

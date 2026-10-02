@@ -1,5 +1,5 @@
 /**
- * js-url-shortener — URL shortener with C3 persistence, standard Workers API.
+ * js-url-shortener — URL shortener with C3 persistence, standard Request/Response API.
  *
  * Setup:
  *   ribo db create urls && ribo deploy

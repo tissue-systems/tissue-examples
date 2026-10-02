@@ -338,7 +338,7 @@ function page(code) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>doc markup — session ${code.toUpperCase()}</title>
+<title>doc markup · session ${code.toUpperCase()}</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
   body { font-family: system-ui, sans-serif; background: #55534e; overflow-x: hidden }

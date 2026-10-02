@@ -5,8 +5,8 @@ Simple notes app demonstrating the C3 SQLite binding.
 ## What it shows
 
 - Creating a C3 database and binding it to a cell
-- `env.DB.prepare(sql).all()` — query
-- `env.DB.prepare(sql).bind(...params).run()` — insert/delete
+- `env.DB.prepare(sql).all()`: query
+- `env.DB.prepare(sql).bind(...params).run()`: insert/delete
 - Form-based UI with server-side redirects
 
 ## Routes

@@ -28,7 +28,7 @@ fn get_bucket(name: &str) -> Result<JsValue, JsValue> {
     let bucket = Reflect::get(&env, &name.into()).unwrap_or(JsValue::UNDEFINED);
     if bucket.is_undefined() || bucket.is_null() {
         return Err(js_err(format!(
-            "env.{name} not bound — add a [[bindings]] g7 entry in ribo.toml"
+            "env.{name} not bound. Add a [[bindings]] g7 entry in ribo.toml"
         )));
     }
     Ok(bucket)

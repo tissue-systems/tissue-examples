@@ -56,7 +56,7 @@ pub fn fetch(req_json: String) -> String {
             let start = body["start"].as_u64().unwrap_or(2) as u32;
             let end   = body["end"].as_u64().unwrap_or(100_000) as u32;
             if end <= start { return serde_json::to_string(&json_resp(400, json!({"error":"end must be > start"}))).unwrap_or_default(); }
-            if end - start > 5_000_000 { return serde_json::to_string(&json_resp(400, json!({"error":"range too large — max 5,000,000"}))).unwrap_or_default(); }
+            if end - start > 5_000_000 { return serde_json::to_string(&json_resp(400, json!({"error":"range too large (max 5,000,000)"}))).unwrap_or_default(); }
             let t0 = js_sys::Date::now();
             let count = count_primes_sync(start, end);
             let ms = (js_sys::Date::now() - t0).round() as u64;
@@ -69,7 +69,7 @@ pub fn fetch(req_json: String) -> String {
             let e1 = body["end1"].as_u64().unwrap_or(50_000) as u32;
             let s2 = body["start2"].as_u64().unwrap_or(50_000) as u32;
             let e2 = body["end2"].as_u64().unwrap_or(100_000) as u32;
-            if (e1.saturating_sub(s1)) + (e2.saturating_sub(s2)) > 5_000_000 { return serde_json::to_string(&json_resp(400, json!({"error":"combined range too large — max 5,000,000 total"}))).unwrap_or_default(); }
+            if (e1.saturating_sub(s1)) + (e2.saturating_sub(s2)) > 5_000_000 { return serde_json::to_string(&json_resp(400, json!({"error":"combined range too large (max 5,000,000 total)"}))).unwrap_or_default(); }
             let t0 = js_sys::Date::now();
             let c1 = count_primes_sync(s1, e1);
             let c2 = count_primes_sync(s2, e2);

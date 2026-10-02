@@ -4,7 +4,7 @@ SPF DNS record validator compiled from Rust to WebAssembly. Checks a domain's SP
 
 ## How it works
 
-1. **Browser** fetches TXT DNS records from `1.1.1.1` (Cloudflare DoH — CORS-enabled) and recursively follows `include:` and `redirect=` directives to collect all referenced domains
+1. **Browser** fetches TXT DNS records from `1.1.1.1` (Cloudflare DoH, CORS-enabled) and recursively follows `include:` and `redirect=` directives to collect all referenced domains
 2. **All records sent** to the Rust `/analyze` endpoint as a single JSON POST
 3. **Rust parses and validates** the full SPF tree against RFC 7208 rules
 4. **Browser renders** a color-coded analysis with per-mechanism detail
@@ -22,7 +22,7 @@ The DNS-over-HTTP lookups happen client-side; Rust handles all validation logic.
 | `PASS_ALL` | error | `+all` allows any server to send mail |
 | `PTR_DEPRECATED` | warning | `ptr` mechanism deprecated in RFC 7208 §5.5 |
 | `MECHANISM_AFTER_ALL` | warning | Mechanisms after `all` are unreachable |
-| `MISSING_ALL` | warning | No `all` fallback — unauthenticated mail result undefined |
+| `MISSING_ALL` | warning | No `all` fallback, so the result for unauthenticated mail is undefined |
 | `SPF_LOOP` | error | Circular `include:` chain detected |
 | `UNKNOWN_MECHANISM` | warning | Unrecognised token |
 | `EMPTY_MECHANISM_VALUE` | error | `include:` or `a:` with empty value |
@@ -53,6 +53,6 @@ ribo deploy
 | File | Purpose |
 |------|---------|
 | `src/lib.rs` | SPF parser, RFC validator, HTTP handler |
-| `src/page.html` | UI — DNS fetching, result rendering |
+| `src/page.html` | UI: DNS fetching, result rendering |
 | `Cargo.toml` | Rust package config |
 | `ribo.toml` | Tissue deploy config |

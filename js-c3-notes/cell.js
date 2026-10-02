@@ -65,7 +65,7 @@ export default {
           </form>
           <time>${n.created_at.slice(0, 16).replace("T", " ")}</time>
         </li>`).join("")
-      : `<li class="empty">No notes yet — add one above.</li>`;
+      : `<li class="empty">No notes yet. Add one above.</li>`;
 
     const html = `<!DOCTYPE html>
 <html lang="en">

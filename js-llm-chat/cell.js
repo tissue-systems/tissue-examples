@@ -1,5 +1,5 @@
 /**
- * js-llm-chat — stateless LLM chat using Anthropic API, standard Workers API.
+ * js-llm-chat — stateless LLM chat using Anthropic API, standard Request/Response API.
  *
  * Setup:
  *   ribo db create llm-chat && ribo deploy
@@ -38,7 +38,7 @@ export default {
 
 async function init(DB) {
   await DB.exec(`CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT NOT NULL)`);
-  return ok({ ok: true, message: "config table ready — POST /configure with your api_key" });
+  return ok({ ok: true, message: "config table ready. POST /configure with your api_key" });
 }
 
 async function configure(DB, body) {
@@ -54,7 +54,7 @@ async function chat(DB, body) {
   if (!message) throw typed(400, "message is required");
 
   const apiKey = await getConfig(DB, "api_key");
-  if (!apiKey) throw typed(503, "API key not configured — POST /configure first");
+  if (!apiKey) throw typed(503, "API key not configured. POST /configure first");
 
   const reqBody = {
     model, max_tokens,

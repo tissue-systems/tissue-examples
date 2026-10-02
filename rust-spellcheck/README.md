@@ -7,8 +7,8 @@ Shows how to write a full HTTP handler in Rust that runs on tissue.
 
 ## What it does
 
-- `GET /` — HTML page with a word input and debounced live search
-- `POST /check` — JSON API: `{"word":"..."}` → top 8 closest matches with edit distances
+- `GET /`: HTML page with a word input and debounced live search
+- `POST /check`: JSON API: `{"word":"..."}` → top 8 closest matches with edit distances
 
 ## Build
 
@@ -31,7 +31,7 @@ The Rust library exports a single `fetch(req_json: String) -> JsValue` function 
 serialises `{method, url, headers, body}` to JSON, calls `wasmFetch`, and converts the
 returned `{status, headers, body}` object into an HTTP response.
 
-This means Rust code handles routing, HTML generation, and all business logic — no JS
+This means Rust code handles routing, HTML generation, and all business logic, with no JS
 glue in the cell itself.
 
 ## Files

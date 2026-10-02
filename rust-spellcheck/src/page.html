@@ -247,7 +247,7 @@ function renderResults(data) {
     statusEl.textContent = `"${query}" is spelled correctly ✓  (checked ${checked} words)`;
   } else {
     statusEl.className = '';
-    statusEl.textContent = `"${query}" not found — top suggestions (checked ${checked} words)`;
+    statusEl.textContent = `"${query}" not found. Top suggestions (checked ${checked} words)`;
   }
 
   if (!suggestions || suggestions.length === 0) {

@@ -6,7 +6,6 @@
  * HNSW). It's libSQL's own built-in vector support — F32_BLOB columns plus
  * vector32() / vector_distance_cos() — which ships compiled into c3's
  * libsql dependency today, with no extension loading required.
- * See plans/plan-sqlite-vec.md for the full reasoning.
  *
  * Embeddings come from OpenAI's embeddings API. The key is supplied by the
  * Cell owner and stored in c3 — exactly the pattern js-llm-chat uses for its
@@ -125,7 +124,7 @@ async function search(DB, env, q) {
 
 async function getApiKey(DB) {
   const { results } = await DB.prepare("SELECT value FROM config WHERE key = 'api_key'").all();
-  if (!results[0]) throw typed(503, "API key not configured — POST /configure first");
+  if (!results[0]) throw typed(503, "API key not configured. POST /configure first");
   return results[0].value;
 }
 
@@ -178,7 +177,7 @@ function serveUI() {
       <button onclick="doSearch()">Search</button>
     </div>
     <div id="results"></div>
-    <p class="muted">Unlike keyword search, queries match by <em>meaning</em> — "how do I host my app" can match a document titled "deploying with ribo" even with no shared words. POST documents via <code>/documents</code> first.</p>
+    <p class="muted">Unlike keyword search, queries match by <em>meaning</em>: "how do I host my app" can match a document titled "deploying with ribo" even with no shared words. POST documents via <code>/documents</code> first.</p>
   </div>
 <script>
 async function doSearch() {
@@ -190,7 +189,7 @@ async function doSearch() {
   const { results } = await res.json();
   out.innerHTML = results.length
     ? results.map(r => \`<div class="result"><h3>\${esc(r.title)}<span class="dist">distance \${r.distance.toFixed(4)}</span></h3><p>\${esc(r.body.slice(0, 160))}\${r.body.length > 160 ? '…' : ''}</p></div>\`).join('')
-    : '<p class="muted">No documents yet — POST some to /documents.</p>';
+    : '<p class="muted">No documents yet. POST some to /documents.</p>';
 }
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 document.getElementById('q').addEventListener('keydown', e => { if (e.key === 'Enter') doSearch(); });

@@ -1,6 +1,6 @@
 # js-static-site
 
-Demonstrates pure static file serving — a whole site on Tissue with no cell code.
+Demonstrates pure static file serving: a whole site on Tissue with no cell code.
 
 No JavaScript is needed. `ribo deploy` synthesises a minimal pass-through cell
 automatically and uploads every file in `./public` to a dedicated

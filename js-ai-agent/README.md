@@ -71,7 +71,7 @@ messages  (id INTEGER PK, session_id, role CHECK('user'|'assistant'), content, c
 ## What this demonstrates
 
 - **Stateful serverless**: the Cell itself is stateless (fresh isolate per request),
-  but state lives in C3 — giving you durable, queryable memory for free
+  but state lives in C3, so you get durable, queryable memory for free
 - **Conversation replay**: history loaded from C3 and sent to the API on every turn;
   no in-memory accumulation, no sticky sessions, no servers to keep warm
 - **Session isolation**: each session is a separate DB partition; concurrent users
