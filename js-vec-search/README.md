@@ -1,65 +1,64 @@
 # js-vec-search
 
-Semantic ("meaning-based") search over documents using **libSQL's native
-vector type and distance functions**: `F32_BLOB` columns, `vector32()`,
-and `vector_distance_cos()`.
+Semantic search over documents with c3's built-in vector support:
+`F32_BLOB` columns, `vector32()` and `vector_distance_cos()`. They're part
+of libSQL, the SQLite fork c3 runs on, so there's no extension to load.
+For keyword search instead, see [`js-fts5-search`](../js-fts5-search).
 
-**This is not the `sqlite-vec` extension.** libSQL (the SQLite fork that
-powers c3) has its own built-in vector support compiled directly into the
-SQL engine: no extension loading, no new c3 dependencies, nothing to build.
-For keyword search instead, see the sibling example,
-[`js-fts5-search`](../js-fts5-search).
+The full reference, including the approximate index, is at
+[tissue.systems/docs/c3/vector-search](https://tissue.systems/docs/c3/vector-search/).
 
 ## How it works
 
-1. `POST /documents` sends the title + body to OpenAI's embeddings API,
-   getting back a 1536-dimensional float vector that represents its meaning.
-2. That vector is stored via `vector32(?)`, bound to a JSON-encoded JS array.
-   libSQL parses the JSON text and packs it into an `F32_BLOB(1536)` column.
-3. `GET /search?q=...` embeds the query the same way, then ranks every stored
-   document by `vector_distance_cos(embedding, vector32(?))`, the cosine
-   distance between the query's meaning and each document's meaning.
-4. Results are ordered by distance ascending: closer in meaning = more
-   relevant, regardless of whether any words actually match.
+1. `POST /documents` sends the title and body to OpenAI's embeddings API and
+   gets back 1536 numbers that stand for what the text means.
+2. The Cell stores them with `vector32(?)`, binding the plain JS array.
+   Parameters travel as JSON, which is the text form `vector32()` reads, and
+   the column is an `F32_BLOB(1536)`.
+3. `GET /search?q=...` embeds the query the same way and ranks every stored
+   document by `vector_distance_cos(embedding, vector32(?))`.
+4. Smaller distance means closer in meaning, whether or not any words match.
 
-This is the building block for retrieval-augmented generation (RAG),
-recommendation engines, "find similar" features, and semantic search UIs.
+This is the retrieval half of retrieval-augmented generation (RAG), and the
+same query gives you "find similar" and recommendations.
 
-## Why brute-force distance instead of an ANN index
+## Why a full scan and not the index
 
-At Cell scale (hundreds to low tens-of-thousands of documents), a full scan
-comparing the query vector against every stored vector is fast. It's a
-tight loop over BLOB comparisons inside the SQLite engine, not application
-code. libSQL also supports approximate nearest-neighbor search via
-`libsql_vector_idx` + `vector_top_k` for much larger corpora, but that's
-extra complexity this example deliberately skips. Reach for it only once
-`meta.duration_ms` on the brute-force query actually shows a problem.
+The search compares the query against every row. That's exact, and it takes
+tens of milliseconds at tens of thousands of documents. c3 also has an
+approximate index (`libsql_vector_idx` + `vector_top_k`), but it is several
+times the size of the table, makes inserts slower, and has to be created
+before the rows go in. Add it when `meta.duration_ms` on the search says to.
 
 ## Bring your own embedding key
 
-tissue has no platform-managed AI gateway. Cells call provider APIs
-directly with keys the owner supplies. This example stores an OpenAI key in
-c3 via `/configure`, the exact pattern [`js-llm-chat`](../js-llm-chat) uses
-for its Anthropic key.
+Cells call model providers directly with the owner's key. This one reads it
+from a `vault` binding, so the key is never in the code or the database.
 
 ## Routes
 
 | Method | Path | Body | Description |
 |---|---|---|---|
-| `POST` | `/configure` | `{ api_key }` | Store the OpenAI API key |
 | `POST` | `/documents` | `{ title, body }` | Embed and store a document |
-| `GET` | `/documents` | — | List documents (embeddings omitted) |
-| `GET` | `/search?q=...` | — | Semantic search ranked by cosine distance |
-| `GET` | `/` | — | Search UI |
+| `GET` | `/documents` | | List documents (embeddings omitted) |
+| `GET` | `/search?q=...` | | Semantic search ranked by cosine distance |
+| `GET` | `/` | | Search page |
 
 ## Deploy
 
+Set the key before the first deploy. A vault value that's missing at deploy
+time leaves the binding without a usable key.
+
 ```bash
 ribo db create vec-search
+ribo vault set vec-search OPENAI_API_KEY
 ribo deploy
+```
 
-URL=http://localhost:8080/<addr>
-curl -X POST $URL/configure -d '{"api_key":"sk-..."}'
+`ribo deploy` prints the Cell's URL:
+
+```bash
+URL=https://vec-search.<your-subdomain>.tissue.dev
 ```
 
 ## Try it
@@ -71,10 +70,9 @@ curl -X POST $URL/documents -d '{
 }'
 curl -X POST $URL/documents -d '{
   "title": "g7 object storage",
-  "body": "g7 wraps Garage to give Cells an S3-compatible bucket API without talking to Garage directly."
+  "body": "g7 gives Cells an S3-compatible bucket API."
 }'
 
 curl "$URL/search?q=how+do+I+host+my+app"
-# matches "Deploying with ribo" — note no shared words with the query;
-# the match is on meaning, found via vector_distance_cos, not keyword overlap
+# "Deploying with ribo" comes first with no words in common with the query
 ```

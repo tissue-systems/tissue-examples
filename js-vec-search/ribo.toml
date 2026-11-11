@@ -2,8 +2,13 @@
 name = "vec-search"
 js   = "./cell.js"
 
-
 [[bindings]]
 type     = "c3"
 binding  = "DB"
 database = "vec-search"
+
+# Set the key before the first deploy:
+#   ribo vault set vec-search OPENAI_API_KEY
+[[bindings]]
+type    = "vault"
+binding = "OPENAI_API_KEY"

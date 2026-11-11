@@ -1,26 +1,23 @@
 /**
- * js-vec-search — semantic ("meaning-based") search over documents using
- * libSQL's NATIVE vector type and distance functions.
+ * js-vec-search: semantic search over documents with c3's built-in vector
+ * columns and distance functions (F32_BLOB, vector32, vector_distance_cos).
+ * They're part of libSQL, the SQLite fork c3 runs on, so there's no
+ * extension to load.
  *
- * IMPORTANT: this is NOT the sqlite-vec extension (vec0 virtual tables /
- * HNSW). It's libSQL's own built-in vector support — F32_BLOB columns plus
- * vector32() / vector_distance_cos() — which ships compiled into c3's
- * libsql dependency today, with no extension loading required.
- *
- * Embeddings come from OpenAI's embeddings API. The key is supplied by the
- * Cell owner and stored in c3 — exactly the pattern js-llm-chat uses for its
- * Anthropic key. tissue has no platform-managed AI gateway; Cells call
- * provider APIs directly with their own keys.
+ * Embeddings come from OpenAI's embeddings API, called with the Cell
+ * owner's own key from a vault binding.
  *
  * Setup:
- *   ribo db create vec-search && ribo deploy
- *   curl -X POST http://localhost:8080/<addr>/configure -d '{"api_key":"sk-..."}'
+ *   ribo db create vec-search
+ *   ribo vault set vec-search OPENAI_API_KEY
+ *   ribo deploy
  *
  * Routes:
- *   POST /configure        { api_key } — store the OpenAI API key in C3
- *   POST /documents        { title, body } — embed and store a document
- *   GET  /documents        — list all documents (without embeddings)
- *   GET  /search?q=...     — embed the query, rank stored docs by cosine distance
+ *   POST /documents        { title, body }: embed and store a document
+ *   GET  /documents        list all documents (without embeddings)
+ *   GET  /search?q=...     embed the query, rank stored docs by cosine distance
+ *
+ * Docs: https://tissue.systems/docs/c3/vector-search/
  */
 
 const EMBEDDINGS_API = "https://api.openai.com/v1/embeddings";
@@ -28,8 +25,7 @@ const EMBEDDING_MODEL = "text-embedding-3-small";
 const EMBEDDING_DIMENSIONS = 1536;
 
 const DDL = [
-  `CREATE TABLE IF NOT EXISTS config (key TEXT PRIMARY KEY, value TEXT NOT NULL)`,
-  // F32_BLOB(n) is libSQL's native fixed-width float32 vector column type.
+  // F32_BLOB(n) holds n float32 values; n has to match the embedding model.
   `CREATE TABLE IF NOT EXISTS documents (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     title      TEXT NOT NULL,
@@ -50,7 +46,6 @@ export default {
       for (const sql of DDL) await DB.exec(sql);
 
       if (method === "GET"  && parts.length === 0)        return serveUI();
-      if (method === "POST" && parts[0] === "configure")  return await configure(DB, await json(request));
       if (method === "POST" && parts[0] === "documents")  return await createDocument(DB, env, await json(request));
       if (method === "GET"  && parts[0] === "documents")  return await listDocuments(DB);
       if (method === "GET"  && parts[0] === "search")     return await search(DB, env, url.searchParams.get("q"));
@@ -62,38 +57,27 @@ export default {
   },
 };
 
-async function configure(DB, body) {
-  const apiKey = (body.api_key ?? "").trim();
-  if (!apiKey) throw typed(400, "api_key is required");
-  await DB.prepare(
-    "INSERT INTO config (key, value) VALUES ('api_key', ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
-  ).bind(apiKey).run();
-  return Response.json({ ok: true });
-}
-
 async function createDocument(DB, env, body) {
   const title = (body.title ?? "").trim();
   const text  = (body.body ?? "").trim();
   if (!title || !text) throw typed(400, "title and body are required");
 
-  const apiKey = await getApiKey(DB);
-  const [embedding] = await embed(apiKey, [`${title}\n\n${text}`]);
+  const [embedding] = await embed(apiKey(env), [`${title}\n\n${text}`]);
 
-  // vector32() takes a JSON array string and converts it to an F32_BLOB.
-  // Binding a JS array serializes to exactly that JSON text — no manual
-  // encoding needed. See plan-sqlite-vec.md Subject 1.
+  // vector32() reads a JSON array as text. Bound parameters travel as JSON,
+  // so the plain number[] from the API arrives in exactly that form.
   const { results } = await DB.prepare(`
     INSERT INTO documents (title, body, embedding)
     VALUES (?, ?, vector32(?))
     RETURNING id, title, body, created_at
-  `).bind(title, text, JSON.stringify(embedding)).all();
+  `).bind(title, text, embedding).all();
 
   return Response.json(results[0], { status: 201 });
 }
 
 async function listDocuments(DB) {
-  // Never SELECT the embedding column directly — it renders as a wall of
-  // byte integers. Distance functions are how you should ever touch it.
+  // The embedding column is left out: selected raw, it comes back as an
+  // array of byte values. vector_extract(embedding) returns it as text.
   const { results } = await DB.prepare(
     "SELECT id, title, body, created_at FROM documents ORDER BY id DESC"
   ).all();
@@ -103,29 +87,30 @@ async function listDocuments(DB) {
 async function search(DB, env, q) {
   if (!q || !q.trim()) throw typed(400, "?q= is required");
 
-  const apiKey = await getApiKey(DB);
-  const [queryEmbedding] = await embed(apiKey, [q]);
+  const [queryEmbedding] = await embed(apiKey(env), [q]);
 
-  // Brute-force cosine distance — an O(n) scan over BLOB comparisons inside
-  // the SQLite engine. Plenty fast at Cell scale (hundreds–tens of thousands
-  // of rows). Reach for libsql_vector_idx + vector_top_k only once
-  // meta.duration_ms shows this scan actually costing something.
+  // An exact scan: every row's distance to the query, computed inside the
+  // database. Tens of thousands of rows take tens of milliseconds. The docs
+  // cover the approximate index (libsql_vector_idx + vector_top_k) for
+  // larger tables. A NULL embedding fails the whole query, hence the WHERE.
   const { results } = await DB.prepare(`
     SELECT
       id, title, body,
       vector_distance_cos(embedding, vector32(?)) AS distance
     FROM documents
+    WHERE embedding IS NOT NULL
     ORDER BY distance ASC
     LIMIT 10
-  `).bind(JSON.stringify(queryEmbedding)).all();
+  `).bind(queryEmbedding).all();
 
   return Response.json({ query: q, results });
 }
 
-async function getApiKey(DB) {
-  const { results } = await DB.prepare("SELECT value FROM config WHERE key = 'api_key'").all();
-  if (!results[0]) throw typed(503, "API key not configured. POST /configure first");
-  return results[0].value;
+function apiKey(env) {
+  if (!env.OPENAI_API_KEY) {
+    throw typed(503, "OPENAI_API_KEY is not set. Run: ribo vault set vec-search OPENAI_API_KEY, then ribo deploy");
+  }
+  return env.OPENAI_API_KEY;
 }
 
 // Calls OpenAI's embeddings endpoint. Returns an array of float arrays,
@@ -171,7 +156,7 @@ function serveUI() {
 </style>
 </head><body>
   <div class="card">
-    <h1>Semantic search <span class="muted">(libSQL native vectors)</span></h1>
+    <h1>Semantic search <span class="muted">(c3 vectors)</span></h1>
     <div class="row">
       <input id="q" placeholder="Describe what you're looking for…" autocomplete="off">
       <button onclick="doSearch()">Search</button>
