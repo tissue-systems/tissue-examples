@@ -7,3 +7,10 @@ js   = "./cell.js"
 type     = "c3"
 binding  = "DB"
 database = "urls"
+
+# Bearer token for every route except the redirect. Set it before deploying;
+# until it is set those routes answer 503.
+#   openssl rand -hex 32 | ribo vault set url-shortener ADMIN_TOKEN
+[[bindings]]
+type    = "vault"
+binding = "ADMIN_TOKEN"

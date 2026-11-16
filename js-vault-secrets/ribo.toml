@@ -8,12 +8,13 @@ type    = "text"
 binding = "SERVICE_NAME"
 value   = "vault-secrets-demo"
 
-# The /sign route is a signing oracle — useful to test this demo, never correct
-# in a real deployment. Flip to "false" and redeploy to see it disappear.
+# The /sign route is a signing oracle: anyone who can reach it can forge a
+# request /webhook accepts. It ships off. Turn it on only on a throwaway
+# deploy you are testing by hand, and turn it off again.
 [[bindings]]
 type    = "text"
 binding = "ENABLE_SIGNING_HELPER"
-value   = "true"
+value   = "false"
 
 # ── Secrets: only the key name is here, never the value ──────────────────────
 # Set each one BEFORE the first deploy, then redeploy after every change:
