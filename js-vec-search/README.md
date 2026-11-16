@@ -35,13 +35,18 @@ before the rows go in. Add it when `meta.duration_ms` on the search says to.
 Cells call model providers directly with the owner's key. This one reads it
 from a `vault` binding, so the key is never in the code or the database.
 
+Every embedding call spends that key, so `POST /documents` and `/search` need a
+second vault value, `ACCESS_TOKEN`, as a Bearer header. Without it, anyone who
+found the URL could run up your OpenAI bill. Requests are also capped: titles at
+200 characters, bodies at 8000, queries at 500.
+
 ## Routes
 
 | Method | Path | Body | Description |
 |---|---|---|---|
-| `POST` | `/documents` | `{ title, body }` | Embed and store a document |
+| `POST` | `/documents` | `{ title, body }` | Embed and store a document (needs `ACCESS_TOKEN`) |
 | `GET` | `/documents` | | List documents (embeddings omitted) |
-| `GET` | `/search?q=...` | | Semantic search ranked by cosine distance |
+| `GET` | `/search?q=...` | | Semantic search ranked by cosine distance (needs `ACCESS_TOKEN`) |
 | `GET` | `/` | | Search page |
 
 ## Deploy
@@ -52,6 +57,7 @@ time leaves the binding without a usable key.
 ```bash
 ribo db create vec-search
 ribo vault set vec-search OPENAI_API_KEY
+openssl rand -hex 32 | ribo vault set vec-search ACCESS_TOKEN
 ribo deploy
 ```
 
@@ -59,20 +65,21 @@ ribo deploy
 
 ```bash
 URL=https://vec-search.<your-subdomain>.tissue.dev
+AUTH="Authorization: Bearer $ACCESS_TOKEN"
 ```
 
 ## Try it
 
 ```bash
-curl -X POST $URL/documents -d '{
+curl -X POST $URL/documents -H "$AUTH" -d '{
   "title": "Deploying with ribo",
   "body": "ribo deploy uploads your Cell code and gives it a live URL on tissue.systems."
 }'
-curl -X POST $URL/documents -d '{
+curl -X POST $URL/documents -H "$AUTH" -d '{
   "title": "g7 object storage",
   "body": "g7 gives Cells an S3-compatible bucket API."
 }'
 
-curl "$URL/search?q=how+do+I+host+my+app"
+curl -H "$AUTH" "$URL/search?q=how+do+I+host+my+app"
 # "Deploying with ribo" comes first with no words in common with the query
 ```

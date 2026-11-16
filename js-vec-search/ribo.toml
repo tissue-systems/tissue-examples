@@ -12,3 +12,11 @@ database = "vec-search"
 [[bindings]]
 type    = "vault"
 binding = "OPENAI_API_KEY"
+
+# Bearer token for POST /documents and GET /search. Both call OpenAI with the
+# key above, so without it anyone with the URL could spend it. Set it before
+# deploying; until it is set those routes answer 503.
+#   openssl rand -hex 32 | ribo vault set vec-search ACCESS_TOKEN
+[[bindings]]
+type    = "vault"
+binding = "ACCESS_TOKEN"

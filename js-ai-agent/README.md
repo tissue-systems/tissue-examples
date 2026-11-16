@@ -11,24 +11,26 @@ Multiple sessions are fully isolated from each other.
 
 ```bash
 ribo db create agent
+ribo vault set agent ANTHROPIC_API_KEY
+openssl rand -hex 32 | ribo vault set agent ACCESS_TOKEN
 ribo deploy
-URL=http://localhost:8080/<addr>
-curl -X POST $URL/init
-curl -X POST $URL/configure -d '{"api_key":"sk-ant-..."}'
+URL=https://agent.<your-subdomain>.tissue.dev
+AUTH="Authorization: Bearer $ACCESS_TOKEN"
+curl -X POST -H "$AUTH" $URL/init
 ```
 
-Optionally set a custom system prompt:
-```bash
-curl -X POST $URL/configure \
-     -d '{"api_key":"sk-ant-...","system_prompt":"You are a pirate. Speak accordingly."}'
-```
+Every route needs the token. Until both secrets are set, the Cell answers 503. The
+history of every session is readable by whoever holds the token, so don't hand it out
+the way you'd hand out a public URL.
+
+To change the system prompt, uncomment the `SYSTEM_PROMPT` text binding in `ribo.toml`
+and redeploy.
 
 ## Routes
 
 | Method | Path | Body | Description |
 |---|---|---|---|
-| `POST` | `/init` | — | Create schema (sessions, messages, config) |
-| `POST` | `/configure` | `{ api_key, system_prompt? }` | Store config in C3 |
+| `POST` | `/init` | — | Create schema (sessions, messages) |
 | `POST` | `/sessions` | — | Create a new session → `{ session_id }` |
 | `GET` | `/sessions` | — | List all sessions with turn counts |
 | `POST` | `/sessions/:id/message` | `{ content }` | Send a message, get AI reply |
@@ -38,24 +40,22 @@ curl -X POST $URL/configure \
 ## Try it
 
 ```bash
-URL=http://localhost:8080/<addr>
-
 # start a session
-SESSION=$(curl -s -X POST $URL/sessions | jq -r .session_id)
+SESSION=$(curl -s -X POST -H "$AUTH" $URL/sessions | jq -r .session_id)
 
 # multi-turn conversation — agent remembers earlier turns
-curl -s -X POST $URL/sessions/$SESSION/message \
+curl -s -X POST -H "$AUTH" $URL/sessions/$SESSION/message \
      -d '{"content":"My name is Alice. Remember that."}' | jq .reply
 
-curl -s -X POST $URL/sessions/$SESSION/message \
+curl -s -X POST -H "$AUTH" $URL/sessions/$SESSION/message \
      -d '{"content":"What is my name?"}' | jq .reply
 
 # inspect history
-curl $URL/sessions/$SESSION/history | jq .
+curl -H "$AUTH" $URL/sessions/$SESSION/history | jq .
 
 # start a second, isolated session
-SESSION2=$(curl -s -X POST $URL/sessions | jq -r .session_id)
-curl -s -X POST $URL/sessions/$SESSION2/message \
+SESSION2=$(curl -s -X POST -H "$AUTH" $URL/sessions | jq -r .session_id)
+curl -s -X POST -H "$AUTH" $URL/sessions/$SESSION2/message \
      -d '{"content":"What is my name?"}' | jq .reply
 # → agent has no idea — different session, no memory of Alice
 ```
@@ -63,7 +63,6 @@ curl -s -X POST $URL/sessions/$SESSION2/message \
 ## Schema
 
 ```sql
-config    (key TEXT PK, value TEXT)
 sessions  (id TEXT PK, created_at, updated_at)
 messages  (id INTEGER PK, session_id, role CHECK('user'|'assistant'), content, created_at)
 ```
@@ -74,7 +73,7 @@ messages  (id INTEGER PK, session_id, role CHECK('user'|'assistant'), content, c
   but state lives in C3, so you get durable, queryable memory for free
 - **Conversation replay**: history loaded from C3 and sent to the API on every turn;
   no in-memory accumulation, no sticky sessions, no servers to keep warm
-- **Session isolation**: each session is a separate DB partition; concurrent users
-  cannot see each other's conversations
+- **Session isolation**: each session's history is replayed only into its own turns
+  (the last 50 messages). It is not a per-user boundary: one token sees every session
 - **C3 as agent memory**: the same pattern scales to tool call logs, embeddings,
   retrieved documents, or any other persistent agent state

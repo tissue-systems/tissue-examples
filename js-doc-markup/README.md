@@ -2,7 +2,7 @@
 
 Collaborative PDF markup between browser windows. A PDF stored in a g7
 bucket is rendered in the browser (pdf.js); any number of windows join a
-shared **3-letter session** and mark it up together:
+shared **8-letter session** and mark it up together:
 
 - **Brush**: draw, circle, highlight on any page; strokes replicate live
 - **Text**: click to drop a note; typing streams to every window keystroke

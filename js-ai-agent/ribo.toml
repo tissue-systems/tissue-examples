@@ -7,3 +7,21 @@ js   = "./cell.js"
 type     = "c3"
 binding  = "DB"
 database = "agent"
+
+# Secrets. Set both BEFORE the first deploy; until they are set the Cell
+# answers 503 rather than running open.
+#   ribo vault set agent ANTHROPIC_API_KEY
+#   openssl rand -hex 32 | ribo vault set agent ACCESS_TOKEN
+[[bindings]]
+type    = "vault"
+binding = "ANTHROPIC_API_KEY"
+
+[[bindings]]
+type    = "vault"
+binding = "ACCESS_TOKEN"
+
+# Optional: the agent's system prompt. Plain configuration, so it lives here.
+# [[bindings]]
+# type    = "text"
+# binding = "SYSTEM_PROMPT"
+# value   = "You are a pirate. Speak accordingly."

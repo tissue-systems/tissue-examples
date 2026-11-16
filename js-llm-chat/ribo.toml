@@ -3,7 +3,14 @@ name = "llm-chat"
 js   = "./cell.js"
 
 
+# Secrets. Set both BEFORE the first deploy; until they are set the Cell
+# answers 503 rather than running open.
+#   ribo vault set llm-chat ANTHROPIC_API_KEY
+#   openssl rand -hex 32 | ribo vault set llm-chat ACCESS_TOKEN
 [[bindings]]
-type     = "c3"
-binding  = "DB"
-database = "llm-chat"
+type    = "vault"
+binding = "ANTHROPIC_API_KEY"
+
+[[bindings]]
+type    = "vault"
+binding = "ACCESS_TOKEN"
