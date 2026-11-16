@@ -330,6 +330,48 @@ function renderHomepage(stock) {
 
 // ── Admin page ────────────────────────────────────────────────────────────────
 
+// Everything a visitor typed reaches the admin page through this.
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+const EMAIL_RE = /^[^\s@<>"'()]{1,64}@[^\s@<>"'()]{1,190}\.[a-z]{2,}$/i;
+
+// ── Admin access ───────────────────────────────────────────────────────────
+// STOCK_SECRET is a vault binding. A vault value that was never set arrives
+// as this placeholder, and an admin route with no secret refuses everyone
+// rather than opening up. curl sends it as a Bearer token; a browser opening
+// /admin gets a password prompt (any username, the secret as password).
+const VAULT_UNSET = '***REMOVED***';
+const secretSet = (s) => typeof s === 'string' && s !== '' && s !== VAULT_UNSET;
+
+async function sameSecret(given, secret) {
+  const enc = new TextEncoder();
+  const [a, b] = await Promise.all([given, secret].map((v) => crypto.subtle.digest('SHA-256', enc.encode(v))));
+  const x = new Uint8Array(a), y = new Uint8Array(b);
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i] ^ y[i];
+  return diff === 0;
+}
+
+async function adminRefusal(request, env) {
+  const secret = env.STOCK_SECRET;
+  if (!secretSet(secret)) {
+    return new Response('Admin routes are off until STOCK_SECRET is set: ribo vault set flower-farm STOCK_SECRET\n',
+      { status: 503, headers: { 'content-type': 'text/plain; charset=utf-8' } });
+  }
+  const h = request.headers.get('authorization') ?? '';
+  let given = '';
+  if (h.startsWith('Bearer ')) given = h.slice(7);
+  else if (h.startsWith('Basic ')) {
+    try { given = atob(h.slice(6)).split(':').slice(1).join(':'); } catch { /* malformed */ }
+  }
+  if (given && await sameSecret(given, secret)) return null;
+  return new Response('Unauthorized.\n', {
+    status: 401,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'www-authenticate': 'Basic realm="flower-farm admin"' },
+  });
+}
+
 function renderAdminPage(stock, waitlist) {
   // Demand summary: count signups per flower
   const demand = {};
@@ -345,7 +387,7 @@ function renderAdminPage(stock, waitlist) {
     const s   = stock[f.id] ?? { inStock: true, note: null };
     const cls = s.inStock ? 'stock-yes' : 'stock-no';
     const lbl = s.inStock ? '✓ In stock' : '✗ Out';
-    const note = s.note ? `<span class="admin-note">${s.note}</span>` : '';
+    const note = s.note ? `<span class="admin-note">${esc(s.note)}</span>` : '';
     return `
       <tr>
         <td>${f.name}</td>
@@ -361,12 +403,12 @@ function renderAdminPage(stock, waitlist) {
         const flowerNames = row.flowers.split(',')
           .map(fid => FLOWERS.find(f => f.id === fid.trim())?.name ?? fid.trim())
           .join(', ');
-        const date = row.created_at.replace('T', ' ').slice(0, 16);
+        const date = String(row.created_at ?? '').replace('T', ' ').slice(0, 16);
         return `
           <tr>
-            <td class="admin-email">${row.email}</td>
-            <td>${flowerNames}</td>
-            <td class="admin-date">${date}</td>
+            <td class="admin-email">${esc(row.email)}</td>
+            <td>${esc(flowerNames)}</td>
+            <td class="admin-date">${esc(date)}</td>
           </tr>`;
       }).join('');
 
@@ -500,9 +542,11 @@ async function handleRequest(request, env) {
         flowers = params.getAll('flowers').join(',');
       }
 
-      if (!email || !email.includes('@')) {
+      if (!EMAIL_RE.test(email)) {
         return Response.json({ error: 'A valid email address is required.' }, { status: 400 });
       }
+      // Only flowers the farm grows are stored.
+      flowers = flowers.split(',').map((f) => f.trim()).filter((f) => FLOWERS.some((x) => x.id === f)).join(',');
       if (!flowers) {
         return Response.json({ error: 'Select at least one flower.' }, { status: 400 });
       }
@@ -516,24 +560,19 @@ async function handleRequest(request, env) {
 
     // ── POST /stock — update availability (farm admin) ────────────────────────
     if (method === 'POST' && path === '/stock') {
-      const secret = env.STOCK_SECRET;
-      if (secret) {
-        const auth = request.headers.get('authorization') ?? '';
-        if (auth !== `Bearer ${secret}`) {
-          return Response.json({ error: 'Unauthorized.' }, { status: 401 });
-        }
-      }
+      const refused = await adminRefusal(request, env);
+      if (refused) return refused;
 
       const updates = await request.json();
       const list    = Array.isArray(updates) ? updates : [updates];
       let   count   = 0;
 
       for (const u of list) {
-        if (!u.flower) continue;
+        if (!u || !FLOWERS.some((f) => f.id === u.flower)) continue;
         await env.DB.prepare(`
           INSERT INTO stock (flower, in_stock, note) VALUES (?, ?, ?)
           ON CONFLICT(flower) DO UPDATE SET in_stock=excluded.in_stock, note=excluded.note
-        `).bind(u.flower, u.inStock ? 1 : 0, u.note ?? null).run();
+        `).bind(u.flower, u.inStock ? 1 : 0, u.note == null ? null : String(u.note).slice(0, 200)).run();
         count++;
       }
 
@@ -542,6 +581,8 @@ async function handleRequest(request, env) {
 
     // ── GET /admin — internal dashboard (stock + waitlist) ───────────────────
     if (method === 'GET' && path === '/admin') {
+      const refused = await adminRefusal(request, env);
+      if (refused) return refused;
       const [stock, { results: waitlist }] = await Promise.all([
         getStock(env.DB),
         env.DB.prepare(
@@ -555,13 +596,8 @@ async function handleRequest(request, env) {
 
     // ── GET /admin/waitlist — list signups as JSON ────────────────────────────
     if (method === 'GET' && path === '/admin/waitlist') {
-      const secret = env.STOCK_SECRET;
-      if (secret) {
-        const auth = request.headers.get('authorization') ?? '';
-        if (auth !== `Bearer ${secret}`) {
-          return Response.json({ error: 'Unauthorized.' }, { status: 401 });
-        }
-      }
+      const refused = await adminRefusal(request, env);
+      if (refused) return refused;
       const { results } = await env.DB.prepare(
         'SELECT id, email, flowers, created_at FROM waitlist ORDER BY id DESC'
       ).all();

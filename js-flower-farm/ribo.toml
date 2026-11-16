@@ -14,12 +14,11 @@ type    = "files"
 binding = "FILES"
 dir     = "./public"
 
-# Optional: set STOCK_SECRET to require a bearer token on POST /stock
-# and GET /admin/waitlist. Leave unset to run open (fine for a demo).
-#
-# [[bindings]]
-# type    = "text"
-# binding = "STOCK_SECRET"
-# value   = "your-secret-here"
+# The admin secret for POST /stock, GET /admin and GET /admin/waitlist. Set it
+# BEFORE deploying; until it is set those routes answer 503 for everyone.
+#   ribo vault set flower-farm STOCK_SECRET
+[[bindings]]
+type    = "vault"
+binding = "STOCK_SECRET"
 
 # Live at https://flower-farm.bestow-75.tissue.dev
