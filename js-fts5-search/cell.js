@@ -7,12 +7,14 @@
  * table approach).
  *
  * Setup:
- *   ribo db create fts5-search && ribo deploy
+ *   ribo db create fts5-search
+ *   openssl rand -hex 32 | ribo vault set fts5-search WRITE_TOKEN
+ *   ribo deploy
  *
  * Routes:
- *   POST   /notes          { title, body } — create a note
+ *   POST   /notes          { title, body } — create a note   (Bearer WRITE_TOKEN)
  *   GET    /notes          — list all notes, newest first
- *   DELETE /notes/:id      — delete a note
+ *   DELETE /notes/:id      — delete a note                   (Bearer WRITE_TOKEN)
  *   GET    /search?q=...   — keyword search with ranked results + highlighted snippets
  */
 
@@ -46,6 +48,40 @@ const DDL = [
   END`,
 ];
 
+const MAX_TITLE = 200;
+const MAX_BODY  = 20000;
+
+// A vault value that was never set arrives as this placeholder. With no token
+// stored, writes are refused for everyone rather than left open.
+const VAULT_UNSET = "***REMOVED***";
+
+async function requireWriter(request, env) {
+  const secret = env.WRITE_TOKEN;
+  if (typeof secret !== "string" || secret === "" || secret === VAULT_UNSET) {
+    throw typed(503, "writes are off until WRITE_TOKEN is set: ribo vault set fts5-search WRITE_TOKEN");
+  }
+  const h = request.headers.get("authorization") ?? "";
+  const given = h.startsWith("Bearer ") ? h.slice(7) : "";
+  const enc = new TextEncoder();
+  const [a, b] = await Promise.all([given, secret].map((v) => crypto.subtle.digest("SHA-256", enc.encode(v))));
+  const x = new Uint8Array(a), y = new Uint8Array(b);
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i] ^ y[i];
+  if (!given || diff !== 0) throw typed(401, "unauthorized");
+}
+
+// snippet() marks matches with \u0001 and \u0002, characters a note can't
+// usefully contain. The excerpt is HTML-escaped first and only then are the
+// markers turned into <mark>, so a note's own text can never become markup.
+function highlight(raw) {
+  return String(raw ?? "")
+    .replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]))
+    .replace(/\u0001/g, "<mark>")
+    .replace(/\u0002/g, "</mark>");
+}
+
+export const __test = { highlight };
+
 export default {
   async fetch(request, env) {
     const { method } = request;
@@ -67,9 +103,15 @@ export default {
       }
 
       if (method === "GET"    && parts.length === 0)              return serveUI();
-      if (method === "POST"   && parts[0] === "notes")            return await create(DB, await json(request));
+      if (method === "POST"   && parts[0] === "notes") {
+        await requireWriter(request, env);
+        return await create(DB, await json(request));
+      }
       if (method === "GET"    && parts[0] === "notes")            return await list(DB);
-      if (method === "DELETE" && parts[0] === "notes" && parts[1])return await remove(DB, id(parts[1]));
+      if (method === "DELETE" && parts[0] === "notes" && parts[1]) {
+        await requireWriter(request, env);
+        return await remove(DB, id(parts[1]));
+      }
       if (method === "GET"    && parts[0] === "search")           return await search(DB, url.searchParams.get("q"));
 
       return err(404, `No route for ${method} ${url.pathname}`);
@@ -80,9 +122,11 @@ export default {
 };
 
 async function create(DB, body) {
-  const title = (body.title ?? "").trim();
-  const text  = (body.body ?? "").trim();
+  const title = String(body.title ?? "").replace(/[\u0001\u0002]/g, "").trim();
+  const text  = String(body.body ?? "").replace(/[\u0001\u0002]/g, "").trim();
   if (!title) throw typed(400, "title is required");
+  if (title.length > MAX_TITLE) throw typed(400, `title must be at most ${MAX_TITLE} characters`);
+  if (text.length > MAX_BODY) throw typed(400, `body must be at most ${MAX_BODY} characters`);
 
   const { results } = await DB.prepare(
     "INSERT INTO notes (title, body) VALUES (?, ?) RETURNING id, title, body, created_at"
@@ -104,15 +148,17 @@ async function remove(DB, noteId) {
 
 async function search(DB, q) {
   if (!q || !q.trim()) throw typed(400, "?q= is required");
+  if (q.length > 200) throw typed(400, "?q= must be at most 200 characters");
 
   // FTS5 MATCH ranks by bm25() by default when ordering by `rank`.
   // snippet(table, column, before, after, ellipsis, max_tokens) pulls a
   // highlighted excerpt around the match — column index is 0-based (title=0, body=1).
+  // The markers are control characters, swapped for <mark> by highlight().
   const { results } = await DB.prepare(`
     SELECT
       notes.id,
       notes.title,
-      snippet(notes_fts, 1, '<mark>', '</mark>', '…', 12) AS excerpt,
+      snippet(notes_fts, 1, char(1), char(2), '…', 12) AS excerpt,
       bm25(notes_fts) AS score
     FROM notes_fts
     JOIN notes ON notes.id = notes_fts.rowid
@@ -121,6 +167,7 @@ async function search(DB, q) {
     LIMIT 20
   `).bind(toFtsQuery(q)).all();
 
+  for (const r of results) r.excerpt = highlight(r.excerpt);
   return Response.json({ query: q, results });
 }
 
@@ -172,7 +219,7 @@ async function doSearch() {
   const res = await fetch('/search?q=' + encodeURIComponent(q));
   const { results } = await res.json();
   out.innerHTML = results.length
-    ? results.map(r => \`<div class="result"><h3>\${escapeAttr(r.title)}</h3><p>\${r.excerpt}</p></div>\`).join('')
+    ? results.map(r => \`<div class="result"><h3>\${escapeAttr(r.title)}</h3><p>\${r.excerpt /* escaped by the Cell, only <mark> added */}</p></div>\`).join('')
     : '<p class="muted">No matches.</p>';
 }
 function escapeAttr(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

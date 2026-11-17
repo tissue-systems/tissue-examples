@@ -25,7 +25,7 @@ reaches `ribo.toml`, git, the deploy bundle, or your shell history.
 |---|---|---|
 | `GET` | `/` | Which secrets are configured, each as a fingerprint, never the value |
 | `GET` | `/health` | `200` when every required secret is present, `503` with the missing list |
-| `POST` | `/sign` | HMAC-SHA256 of the request body, hex. A test helper, gated by a text binding |
+| `POST` | `/sign` | HMAC-SHA256 of the request body, hex. A test helper, off unless a text binding turns it on |
 | `POST` | `/webhook` | Verifies `x-signature` against the request body |
 
 ## Try it
@@ -36,8 +36,10 @@ URL=https://vault-secrets.<your-subdomain>.tissue.dev
 curl $URL/
 curl $URL/health
 
+# Sign on your side with the same secret, the way a real webhook sender would.
+SECRET=<the value you stored with ribo vault set>
 BODY='{"event":"order.paid","id":42}'
-SIG=$(curl -s -X POST $URL/sign -d "$BODY" | grep -o '[0-9a-f]\{64\}')
+SIG=$(printf %s "$BODY" | openssl dgst -sha256 -hmac "$SECRET" -hex | awk '{print $NF}')
 
 curl -X POST $URL/webhook -H "x-signature: $SIG" -d "$BODY"      # {"ok":true,"bytes":30}
 curl -X POST $URL/webhook -H "x-signature: $SIG" -d "$BODY tampered"   # 401
@@ -73,8 +75,7 @@ confirm a guess against a short passphrase offline, so don't expose one for a we
 
 `POST /sign` will sign any body handed to it with the webhook secret. That is a signing oracle:
 it lets anyone forge a request the `/webhook` route will accept, which defeats the entire
-point. It exists here so the demo is testable with two curl commands, and it is gated on a
-plain text binding:
+point. It ships switched off, and returns 404 until a plain text binding turns it on:
 
 ```toml
 [[bindings]]
@@ -83,7 +84,8 @@ binding = "ENABLE_SIGNING_HELPER"
 value   = "false"
 ```
 
-Set it to `"false"`, redeploy, and `/sign` returns 404 while `/webhook` keeps working.
+Set it to `"true"` only on a throwaway deploy you're testing by hand, and set it back
+before anything real points at the Cell.
 
 ## What this demonstrates
 

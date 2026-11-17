@@ -7,3 +7,10 @@ js   = "./cell.js"
 type     = "c3"
 binding  = "DB"
 database = "fts5-search"
+
+# Bearer token for POST /notes and DELETE /notes/:id. Search and the UI stay
+# public. Set it before deploying; until it is set writes answer 503.
+#   openssl rand -hex 32 | ribo vault set fts5-search WRITE_TOKEN
+[[bindings]]
+type    = "vault"
+binding = "WRITE_TOKEN"

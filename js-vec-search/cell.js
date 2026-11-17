@@ -10,9 +10,11 @@
  * Setup:
  *   ribo db create vec-search
  *   ribo vault set vec-search OPENAI_API_KEY
+ *   openssl rand -hex 32 | ribo vault set vec-search ACCESS_TOKEN
  *   ribo deploy
  *
- * Routes:
+ * Routes (the two that call OpenAI need `Authorization: Bearer <ACCESS_TOKEN>`,
+ * because each call spends the owner's key):
  *   POST /documents        { title, body }: embed and store a document
  *   GET  /documents        list all documents (without embeddings)
  *   GET  /search?q=...     embed the query, rank stored docs by cosine distance
@@ -35,6 +37,29 @@ const DDL = [
   )`,
 ];
 
+// Caps on what one request can send to the embeddings API.
+const MAX_TITLE = 200;
+const MAX_BODY  = 8000;
+const MAX_QUERY = 500;
+
+// A vault value that was never set arrives as this placeholder.
+const VAULT_UNSET = "***REMOVED***";
+const isSet = (v) => typeof v === "string" && v !== "" && v !== VAULT_UNSET;
+
+async function requireAccess(request, env) {
+  if (!isSet(env.ACCESS_TOKEN)) {
+    throw typed(503, "ACCESS_TOKEN is not set. Run: ribo vault set vec-search ACCESS_TOKEN, then ribo deploy");
+  }
+  const h = request.headers.get("authorization") ?? "";
+  const given = h.startsWith("Bearer ") ? h.slice(7) : "";
+  const enc = new TextEncoder();
+  const [a, b] = await Promise.all([given, env.ACCESS_TOKEN].map((v) => crypto.subtle.digest("SHA-256", enc.encode(v))));
+  const x = new Uint8Array(a), y = new Uint8Array(b);
+  let diff = 0;
+  for (let i = 0; i < x.length; i++) diff |= x[i] ^ y[i];
+  if (!given || diff !== 0) throw typed(401, "unauthorized");
+}
+
 export default {
   async fetch(request, env) {
     const { method } = request;
@@ -46,9 +71,15 @@ export default {
       for (const sql of DDL) await DB.exec(sql);
 
       if (method === "GET"  && parts.length === 0)        return serveUI();
-      if (method === "POST" && parts[0] === "documents")  return await createDocument(DB, env, await json(request));
       if (method === "GET"  && parts[0] === "documents")  return await listDocuments(DB);
-      if (method === "GET"  && parts[0] === "search")     return await search(DB, env, url.searchParams.get("q"));
+      if (method === "POST" && parts[0] === "documents") {
+        await requireAccess(request, env);
+        return await createDocument(DB, env, await json(request));
+      }
+      if (method === "GET"  && parts[0] === "search") {
+        await requireAccess(request, env);
+        return await search(DB, env, url.searchParams.get("q"));
+      }
 
       return err(404, `No route for ${method} ${url.pathname}`);
     } catch (e) {
@@ -58,9 +89,11 @@ export default {
 };
 
 async function createDocument(DB, env, body) {
-  const title = (body.title ?? "").trim();
-  const text  = (body.body ?? "").trim();
+  const title = String(body.title ?? "").trim();
+  const text  = String(body.body ?? "").trim();
   if (!title || !text) throw typed(400, "title and body are required");
+  if (title.length > MAX_TITLE) throw typed(400, `title must be at most ${MAX_TITLE} characters`);
+  if (text.length > MAX_BODY) throw typed(400, `body must be at most ${MAX_BODY} characters`);
 
   const [embedding] = await embed(apiKey(env), [`${title}\n\n${text}`]);
 
@@ -86,6 +119,7 @@ async function listDocuments(DB) {
 
 async function search(DB, env, q) {
   if (!q || !q.trim()) throw typed(400, "?q= is required");
+  if (q.length > MAX_QUERY) throw typed(400, `?q= must be at most ${MAX_QUERY} characters`);
 
   const [queryEmbedding] = await embed(apiKey(env), [q]);
 
@@ -107,7 +141,7 @@ async function search(DB, env, q) {
 }
 
 function apiKey(env) {
-  if (!env.OPENAI_API_KEY) {
+  if (!isSet(env.OPENAI_API_KEY)) {
     throw typed(503, "OPENAI_API_KEY is not set. Run: ribo vault set vec-search OPENAI_API_KEY, then ribo deploy");
   }
   return env.OPENAI_API_KEY;
@@ -158,6 +192,9 @@ function serveUI() {
   <div class="card">
     <h1>Semantic search <span class="muted">(c3 vectors)</span></h1>
     <div class="row">
+      <input id="token" type="password" placeholder="access token" autocomplete="current-password">
+    </div>
+    <div class="row">
       <input id="q" placeholder="Describe what you're looking for…" autocomplete="off">
       <button onclick="doSearch()">Search</button>
     </div>
@@ -170,8 +207,12 @@ async function doSearch() {
   const out = document.getElementById('results');
   if (!q) { out.innerHTML = ''; return; }
   out.innerHTML = '<p class="muted">Searching…</p>';
-  const res = await fetch('/search?q=' + encodeURIComponent(q));
-  const { results } = await res.json();
+  const res = await fetch('/search?q=' + encodeURIComponent(q), {
+    headers: { authorization: 'Bearer ' + document.getElementById('token').value },
+  });
+  const data = await res.json();
+  if (!res.ok) { out.innerHTML = '<p class="muted">' + esc(data.error || 'error') + '</p>'; return; }
+  const { results } = data;
   out.innerHTML = results.length
     ? results.map(r => \`<div class="result"><h3>\${esc(r.title)}<span class="dist">distance \${r.distance.toFixed(4)}</span></h3><p>\${esc(r.body.slice(0, 160))}\${r.body.length > 160 ? '…' : ''}</p></div>\`).join('')
     : '<p class="muted">No documents yet. POST some to /documents.</p>';

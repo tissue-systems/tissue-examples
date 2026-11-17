@@ -2,13 +2,13 @@
  * js-doc-markup — collaborative PDF markup between browser windows.
  *
  * A PDF (served from a g7 bucket) is rendered in the browser (pdf.js); any
- * number of windows join a shared 3-letter session and mark it up together:
+ * number of windows join a shared 8-letter session and mark it up together:
  *
  *   - brush tool: draw / circle / highlight on any page, replicated live
  *   - text tool: click to place a text note; typing streams live to everyone
  *   - live cursors: see where the other windows are pointing, per page
  *
- * Sessions: visiting `/` creates a fresh 3-letter code and redirects to
+ * Sessions: visiting `/` creates a fresh 8-letter code and redirects to
  * `/s/<code>`; other windows join by entering the code (or opening the URL).
  * All annotations are scoped to the session.
  *
@@ -79,6 +79,15 @@ const WAKE_MS = 25;
 const TICK_MS = 250;
 const STREAM_MS = 25_000;
 const CURSOR_TTL = 4_000;
+// One isolate's cursor map is shared by every session on the edge, so it gets
+// a ceiling. Past it, expired entries are dropped and new cursors refused.
+const MAX_CURSORS = 2_000;
+// The code is the only thing standing between a stranger and a session's
+// annotations, so it is long enough that guessing one is not practical
+// (26^8, about 2 * 10^11).
+const CODE_LEN = 8;
+
+export const __test = { okCode, newCode, CODE_LEN };
 
 export default {
   async fetch(request, env) {
@@ -111,6 +120,11 @@ export default {
       const { session, id, color, page, x, y } = await request.json();
       const code = okCode(session);
       if (!code || !okId(id) || !okColor(color)) return bad("invalid cursor");
+      const key = code + ":" + id;
+      if (!cursors.has(key) && cursors.size >= MAX_CURSORS) {
+        pruneCursors();
+        if (cursors.size >= MAX_CURSORS) return Response.json({ error: "busy" }, { status: 503 });
+      }
       cursors.set(code + ":" + id, {
         session: code, id, color,
         page: pageNum(page), x: frac(x), y: frac(y), t: Date.now(),
@@ -172,7 +186,7 @@ export default {
       return Response.json({ ok: true });
     }
 
-    const sessMatch = path.match(/^\/s\/([a-zA-Z]{3})$/);
+    const sessMatch = path.match(/^\/s\/([a-zA-Z]{8})$/);
     if (sessMatch && request.method === "GET") {
       const code = sessMatch[1].toLowerCase();
       await sweep(env);
@@ -199,7 +213,7 @@ function nowIso() { return new Date().toISOString(); }
 function okId(s) { return typeof s === "string" && /^[a-z0-9]{1,16}$/.test(s); }
 function okColor(s) { return typeof s === "string" && /^#[0-9a-f]{6}$/i.test(s); }
 function okCode(s) {
-  return typeof s === "string" && /^[a-zA-Z]{3}$/.test(s) ? s.toLowerCase() : null;
+  return typeof s === "string" && /^[a-zA-Z]{8}$/.test(s) ? s.toLowerCase() : null;
 }
 function frac(v) {
   const n = Number(v);
@@ -221,7 +235,13 @@ async function newCode(env) {
   const letters = "abcdefghijklmnopqrstuvwxyz";
   for (let attempt = 0; attempt < 10; attempt++) {
     let code = "";
-    for (let i = 0; i < 3; i++) code += letters[Math.floor(Math.random() * letters.length)];
+    // 234 is the largest multiple of 26 below 256; dropping bytes above it
+    // keeps every letter equally likely.
+    while (code.length < CODE_LEN) {
+      for (const b of crypto.getRandomValues(new Uint8Array(CODE_LEN * 2))) {
+        if (b < 234 && code.length < CODE_LEN) code += letters[b % 26];
+      }
+    }
     const { results } = await env.DB.prepare(
       "SELECT code FROM sessions WHERE code = ?"
     ).bind(code).all();
@@ -247,6 +267,11 @@ async function sweep(env) {
     for (const key of cursors.keys()) if (key.startsWith(code + ":")) cursors.delete(key);
     strokeSeq++; textSeq++;
   }
+}
+
+function pruneCursors() {
+  const cutoff = Date.now() - CURSOR_TTL;
+  for (const [key, c] of cursors) if (c.t < cutoff) cursors.delete(key);
 }
 
 function liveCursors(code) {
@@ -351,7 +376,7 @@ function page(code) {
     cursor: pointer; font-size: .8rem }
   .code-badge:hover { background: #33303f }
   .join { display: flex; gap: .3rem; align-items: center }
-  .join input { width: 3.6rem; text-transform: uppercase; text-align: center;
+  .join input { width: 7.5rem; text-transform: uppercase; text-align: center;
     letter-spacing: .12em; padding: .25rem .3rem; border: 1px solid #d5cfc0;
     border-radius: 6px; font-size: .8rem }
   .tools { display: flex; gap: .3rem }
@@ -389,7 +414,7 @@ function page(code) {
 <div class="topbar">
   <strong>doc markup</strong>
   <span class="code-badge" id="codeBadge" title="click to copy link">${code.toUpperCase()}</span>
-  <span class="join"><input id="joinInput" maxlength="3" placeholder="ABC">
+  <span class="join"><input id="joinInput" maxlength="8" placeholder="ABCDEFGH">
     <button class="bar-btn" id="joinBtn">Join</button></span>
   <span class="tools">
     <button id="toolBrush" class="active">✏️ Brush</button>
@@ -447,7 +472,7 @@ function page(code) {
   });
   function joinSession() {
     var v = document.getElementById("joinInput").value.trim();
-    if (/^[a-zA-Z]{3}$/.test(v)) location.href = "/s/" + v.toLowerCase();
+    if (/^[a-zA-Z]{8}$/.test(v)) location.href = "/s/" + v.toLowerCase();
   }
   document.getElementById("joinBtn").addEventListener("click", joinSession);
   document.getElementById("joinInput").addEventListener("keydown", function (e) {
